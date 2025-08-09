@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "GTAVI",
+    "name": "GTA VI Countdown",
     "slug": "GTAVI",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,17 +13,32 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.douapps.gtavicountdown"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.douapps.gtavicountdown",
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cbd4aa67-b133-42a6-b843-c8a0dbdbedfb"
+      }
+    },
+    "plugins": [
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "development"
+        }
+      ]
+    ]
   }
 }

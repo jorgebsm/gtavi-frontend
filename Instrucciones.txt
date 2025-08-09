@@ -1,0 +1,14 @@
+#Permanentes
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
+
+#Crear proyecto:
+npx create-expo-app@latest GTAVI --template blank --yes
+
+#Correr el proyecto
+npx expo start -c
+
+#COMPILAR APK:
+eas build -p android --profile preview
+
+#COMPILAR AAB:
+eas build -p android --profile production

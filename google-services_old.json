@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "40411143768",
+    "project_id": "gta-vi-1c970",
+    "storage_bucket": "gta-vi-1c970.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:40411143768:android:23603f9eee1fcbfa3cf42d",
+        "android_client_info": {
+          "package_name": "com.douapps.gtavi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcPnNf_7KPZOnJWWGmt76H3joB3yC0djc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
