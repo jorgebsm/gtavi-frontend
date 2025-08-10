@@ -1,45 +1,55 @@
-// Configuración de la API para diferentes entornos
-const API_CONFIG = {
-  development: {
-    baseURL: 'https://gtavi-backend-production.up.railway.app/api',
-    timeout: 10000,
+// Configuración de la API
+export const API_CONFIG = {
+  // URL base de la API
+  BASE_URL: 'https://gtavi-backend-production.up.railway.app/api', // Siempre usar producción
+  
+  // Endpoints
+  ENDPOINTS: {
+    LEAKS: '/leaks',
+    NEWS: '/news',
+    TRAILERS: '/trailers',
+    TRANSLATIONS: '/translations',
   },
-  production: {
-    baseURL: 'https://gtavi-backend-production.up.railway.app/api', // <-- así debe estar
-    timeout: 15000,
+  
+  // Configuración de requests
+  REQUEST_CONFIG: {
+    timeout: 10000, // 10 segundos
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
   },
+  
+  // Configuración de paginación por defecto
+  DEFAULT_PAGINATION: {
+    page: 1,
+    limit: 10,
+  },
+  
+  // Idiomas soportados
+  SUPPORTED_LANGUAGES: ['es', 'en', 'fr', 'ar', 'pl', 'pt'],
+  
+  // Idioma por defecto
+  DEFAULT_LANGUAGE: 'es',
 };
 
-// Determinar el entorno actual
-const getEnvironment = () => {
-  // En desarrollo con Expo, usar development
-  if (__DEV__) {
-    return 'development';
-  }
-  // En producción, usar production
-  return 'production';
+// Función para construir URLs completas
+export const buildApiUrl = (endpoint, params = {}) => {
+  const url = new URL(`${API_CONFIG.BASE_URL}${endpoint}`);
+  
+  // Agregar parámetros de query
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, value);
+    }
+  });
+  
+  return url.toString();
 };
 
-// Obtener configuración actual
-export const getApiConfig = () => {
-  const env = getEnvironment();
-  return API_CONFIG[env];
+// Función para construir URL con idioma
+export const buildApiUrlWithLanguage = (endpoint, language, params = {}) => {
+  return buildApiUrl(endpoint, { lang: language, ...params });
 };
 
-// URL base para desarrollo local
-export const DEV_API_URL = 'https://gtavi-backend-production.up.railway.app/api';
-
-// URL base para emulador Android
-export const ANDROID_EMULATOR_API_URL = 'http://10.0.2.2:5000/api';
-
-// URL base para dispositivo físico (cambiar por tu IP local)
-export const PHYSICAL_DEVICE_API_URL = 'https://gtavi-backend-production.up.railway.app/api'; // URL de Railway
-
-// Función para obtener la URL correcta según la plataforma
-export const getApiUrl = () => {
-  if (__DEV__) {
-    return PHYSICAL_DEVICE_API_URL;
-  }
-  // En producción, usar la URL configurada
-  return getApiConfig().baseURL;
-}; 
+export default API_CONFIG; 

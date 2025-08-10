@@ -2,8 +2,9 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { launchDateService } from '../services/api';
-import { useApi } from '../hooks/useApi';
+import { useLaunchDate } from '../hooks/useApiMultiLang';
+import { useLocalization } from '../hooks/useLocalization';
+import LottieView from 'lottie-react-native';
 
 export default function HomeScreen() {
   const [timeLeft, setTimeLeft] = useState({
@@ -13,15 +14,18 @@ export default function HomeScreen() {
     seconds: 0
   });
 
-  // Cargar fuentes
+  // Hook de localización
+  const { translations, isRTL } = useLocalization();
+
+  // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
 
-  // Obtener fecha de lanzamiento desde el backend
-  const { data: launchDateData, loading, error } = useApi(launchDateService.getCurrent);
+  // Obtener fecha de lanzamiento desde el backend con soporte multi-idioma
+  const { data: launchDateData, loading, error } = useLaunchDate();
 
   // Fecha de lanzamiento por defecto si no hay datos del backend
   const defaultLaunchDate = new Date('2026-05-26T00:00:00Z');
@@ -99,12 +103,13 @@ export default function HomeScreen() {
   // Mostrar loading mientras se cargan las fuentes
   if (!fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <View style={styles.backgroundGradient} />
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
   }
+
+  // No necesitamos verificar fuentes
 
   return (
     <View style={styles.container}>
@@ -119,14 +124,24 @@ export default function HomeScreen() {
         {/* <View style={[styles.particle, styles.particle2]} /> */}
         {/* <View style={[styles.particle, styles.particle3]} /> */}
         {/* <View style={[styles.particle, styles.particle4]} /> */}
-        <View style={[styles.particle, styles.particle5]} />
-        <View style={[styles.particle, styles.particle6]} />
+        {/* <View style={[styles.particle, styles.particle5]} /> */}
+        {/* <View style={[styles.particle, styles.particle6]} /> */}
       </View>
       
       {/* Contenido principal */}
       <View style={styles.content}>
         {/* Imagen de GTA VI */}
         <View style={styles.imageContainer}>
+          {/* Animación de Lottie detrás del logo */}
+          <View style={styles.lottieContainer}>
+            <LottieView
+              source={require('../assets/animations/wave.json')}
+              style={styles.lottieAnimation}
+              autoPlay
+              loop
+              speed={1.8}
+            />
+          </View>
           <Image 
             source={require('../assets/logo.png')}
             style={styles.logoImage}
@@ -137,24 +152,24 @@ export default function HomeScreen() {
         {/* Contador de días */}
         <View style={styles.daysContainer}>
           <Text style={styles.daysNumber}>{timeLeft.days}</Text>
-          <Text style={styles.daysLabel}>DÍAS</Text>
+          <Text style={[styles.daysLabel, isRTL && styles.rtlText]}>{translations.days}</Text>
         </View>
 
         {/* Contador de tiempo */}
-        <View style={styles.timeContainer}>
+        <View style={[styles.timeContainer, isRTL && styles.rtlContainer]}>
           <View style={styles.timeUnit}>
             <Text style={styles.timeNumber}>{String(timeLeft.hours).padStart(2, '0')}</Text>
-            <Text style={styles.timeLabel}>HORAS</Text>
+            <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.hours}</Text>
           </View>
           <Text style={styles.timeSeparator}>:</Text>
           <View style={styles.timeUnit}>
             <Text style={styles.timeNumber}>{String(timeLeft.minutes).padStart(2, '0')}</Text>
-            <Text style={styles.timeLabel}>MINUTOS</Text>
+            <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.minutes}</Text>
           </View>
           <Text style={styles.timeSeparator}>:</Text>
           <View style={styles.timeUnit}>
             <Text style={styles.timeNumber}>{String(timeLeft.seconds).padStart(2, '0')}</Text>
-            <Text style={styles.timeLabel}>SEGUNDOS</Text>
+            <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.seconds}</Text>
           </View>
         </View>
       </View>
@@ -233,6 +248,12 @@ const styles = StyleSheet.create({
     width: '100%',
     zIndex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
   loadingText: {
     color: '#fff',
     fontSize: 18,
@@ -242,6 +263,22 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginBottom: 0,
     alignItems: 'center',
+  },
+  lottieContainer: {
+    position: 'absolute',
+    top: -50,
+    left: -50,
+    right: -50,
+    bottom: -50,
+    zIndex: -1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lottieAnimation: {
+    width: 500,
+    height: 500,
+    opacity: 0.3,
+    top: 100
   },
   logoImage: {
     width: 300,
@@ -292,5 +329,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     color: '#ff6b35',
     marginHorizontal: 5,
+  },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
   },
 }); 

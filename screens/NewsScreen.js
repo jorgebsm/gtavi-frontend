@@ -3,21 +3,25 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Linking
 import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { newsService } from '../services/api';
-import { useApi } from '../hooks/useApi';
+// Removemos el import de fuentes que no existe
+import { useNews } from '../hooks/useApiMultiLang';
+import { useLocalization } from '../hooks/useLocalization';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function NewsScreen({ navigation }) {
-  // Cargar fuentes
+  // Hook de localización
+  const { translations, isRTL, formatDate } = useLocalization();
+
+  // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
 
-  // Obtener noticias desde el backend
-  const { data: newsResponse, loading, error } = useApi(newsService.getAll);
+  // Obtener noticias desde el backend con soporte multi-idioma
+  const { data: newsResponse, loading, error } = useNews();
 
   // Datos por defecto si no hay conexión
   // const defaultNews = [
@@ -42,7 +46,7 @@ export default function NewsScreen({ navigation }) {
   const defaultNews = [];
 
   // Usar datos del backend o datos por defecto
-  const newsData = newsResponse?.data || defaultNews;
+  const newsData = newsResponse || defaultNews;
 
   // Mostrar error si hay problemas con la API
   // useEffect(() => {
@@ -61,14 +65,10 @@ export default function NewsScreen({ navigation }) {
   };
 
   const renderNews = ({ item }) => {
-    // Formatear fecha para mostrar
-    const formatDate = (dateString) => {
-      if (!dateString) return 'Fecha no disponible';
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long' 
-      });
+    // Formatear fecha para mostrar usando el hook de localización
+    const formatNewsDate = (dateString) => {
+      if (!dateString) return translations.dateNotAvailable;
+      return formatDate(dateString);
     };
 
     return (
@@ -87,16 +87,16 @@ export default function NewsScreen({ navigation }) {
               />
             </View>
           )}
-          <View style={styles.newsContentInner}>
+          <View style={[styles.newsContentInner, isRTL && styles.rtlContainer]}>
             <View style={styles.newsHeader}>
-              <Text style={styles.newsTitle}>{item.title}</Text>
-              <View style={styles.newsMeta}>
-                <Text style={styles.newsDate}>{formatDate(item.publishDate)}</Text>
-                <Text style={styles.newsSource}>• {item.source}</Text>
+              <Text style={[styles.newsTitle, isRTL && styles.rtlText]}>{item.title}</Text>
+              <View style={[styles.newsMeta, isRTL && styles.rtlContainer]}>
+                <Text style={[styles.newsDate, isRTL && styles.rtlText]}>{formatNewsDate(item.publishDate)}</Text>
+                <Text style={[styles.newsSource, isRTL && styles.rtlText]}>• {item.source}</Text>
               </View>
             </View>
-            <Text style={styles.newsExcerpt}>{item.excerpt}</Text>
-            <Text style={styles.readMore}>Toca para leer más</Text>
+            <Text style={[styles.newsExcerpt, isRTL && styles.rtlText]}>{item.excerpt}</Text>
+            <Text style={[styles.readMore, isRTL && styles.rtlText]}>{translations.tapToReadMore}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -106,8 +106,7 @@ export default function NewsScreen({ navigation }) {
   // Mostrar loading mientras se cargan las fuentes
   if (!fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <View style={styles.backgroundGradient} />
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
@@ -134,14 +133,18 @@ export default function NewsScreen({ navigation }) {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>NOTICIAS</Text>
+          <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.news}</Text>
           {/* <Text style={styles.headerSubtitle}>GTA VI</Text> */}
         </View>
 
         {/* Indicador de scroll */}
-        <View style={styles.scrollIndicator}>
-          <Text style={styles.scrollText}>Desliza para ver más</Text>
-          <Ionicons name="chevron-forward" size={20} color="#ff6b35" />
+        <View style={[styles.scrollIndicator, isRTL && styles.rtlContainer]}>
+          <Text style={[styles.scrollText, isRTL && styles.rtlText]}>{translations.swipeForMore}</Text>
+          <Ionicons 
+            name={isRTL ? "chevron-back" : "chevron-forward"} 
+            size={20} 
+            color="#ff6b35" 
+          />
         </View>
 
         {/* Lista de noticias con paginación */}
@@ -341,5 +344,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#ff6b35',
     marginTop: 10,
+  },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Poppins_400Regular',
   },
 }); 

@@ -30,7 +30,7 @@ export function useInitNotifications(setNotifStatus) {
           } else {
             setNotifStatus && setNotifStatus({ status: 'error', message: data.error || 'Error desconocido', playerId });
           }
-          console.log('Registro de dispositivo en backend:', data);
+          console.log('Registro de dispositivo en backend:');
         })
         .catch(err => {
           setNotifStatus && setNotifStatus({ status: 'error', message: 'Error registrando en backend', playerId });

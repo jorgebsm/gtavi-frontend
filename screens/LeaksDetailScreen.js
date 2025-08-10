@@ -1,19 +1,76 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, StatusBar, Image, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+// Removemos el import de fuentes que no existe
+import { useLocalization } from '../hooks/useLocalization';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const LeaksDetailScreen = ({ route, navigation }) => {
   const { leak } = route.params;
 
-  // Cargar fuentes
-  const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-  });
+  // Hook de localización
+  const { translations, isRTL, formatDate } = useLocalization();
+
+  // Función para obtener color de credibilidad (igual que en LeaksScreen)
+  const getCredibilityColor = (credibility) => {
+    const normalizedCredibility = credibility?.toLowerCase();
+    switch (normalizedCredibility) {
+      case 'alta':
+      case 'high':
+      case 'haute':
+      case 'عالية':
+      case 'wysoka':
+        return '#4CAF50';
+      case 'media':
+      case 'medium':
+      case 'moyenne':
+      case 'متوسطة':
+      case 'średnia':
+      case 'média':
+        return '#FF9800';
+      case 'baja':
+      case 'low':
+      case 'faible':
+      case 'منخفضة':
+      case 'niska':
+      case 'baixa':
+        return '#F44336';
+      default: 
+        return '#999';
+    }
+  };
+
+  // Función para localizar credibilidad (igual que en LeaksScreen)
+  const getLocalizedCredibility = (credibility) => {
+    const normalizedCredibility = credibility?.toLowerCase();
+    switch (normalizedCredibility) {
+      case 'alta':
+      case 'high':
+      case 'haute':
+      case 'عالية':
+      case 'wysoka':
+        return translations.high;
+      case 'media':
+      case 'medium':
+      case 'moyenne':
+      case 'متوسطة':
+      case 'średnia':
+      case 'média':
+        return translations.medium;
+      case 'baja':
+      case 'low':
+      case 'faible':
+      case 'منخفضة':
+      case 'niska':
+      case 'baixa':
+        return translations.low;
+      default: 
+        return credibility;
+    }
+  };
+
+  // No necesitamos cargar fuentes personalizadas
 
   const handleBack = () => {
     navigation.goBack();
@@ -21,26 +78,16 @@ const LeaksDetailScreen = ({ route, navigation }) => {
 
   const handleShare = async () => {
     try {
-      const shareText = `${leak.title}\n\nDescubre más filtraciones sobre GTA VI en la app GTA VI Countdown:\nhttps://play.google.com/store/apps/details?id=com.douapps.gtavicountdown`;
+      const shareText = `${leak.title}\n\n${translations.shareLeakText}\nhttps://play.google.com/store/apps/details?id=com.douapps.gtavicountdown`;
       
       await Share.share({
         message: shareText,
-        title: 'Filtración GTA VI',
+        title: `${translations.leakTitle} GTA VI`,
       });
-    } catch (error) {
-      console.log('Error al compartir:', error);
-    }
+    } catch (error) {}
   };
 
-  // Mostrar loading mientras se cargan las fuentes
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.backgroundGradient} />
-        <Text style={styles.loadingText}>Cargando...</Text>
-      </View>
-    );
-  }
+  // No necesitamos verificar fuentes
 
   return (
     <View style={styles.container}>
@@ -64,7 +111,7 @@ const LeaksDetailScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Ionicons name="arrow-back" size={24} color="#ff6b35" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>FILTRACIÓN</Text>
+        <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.leakTitle}</Text>
       </View>
 
       {/* Contenido principal */}
@@ -82,58 +129,41 @@ const LeaksDetailScreen = ({ route, navigation }) => {
         
         {/* Título de la filtración */}
         <View style={styles.titleContainer}>
-          <Text style={styles.leakTitle}>{leak.title}</Text>
+          <Text style={[styles.leakTitle, isRTL && styles.rtlText]}>{leak.title}</Text>
         </View>
 
         {/* Metadatos */}
-        <View style={styles.metaContainer}>
-          <View style={styles.metaRow}>
-            <Text style={styles.leakDate}>{leak.date}</Text>
-            <Text style={styles.leakSource}>• {leak.source}</Text>
+        <View style={[styles.metaContainer, isRTL && styles.rtlContainer]}>
+          <View style={[styles.metaRow, isRTL && styles.rtlContainer]}>
+            <Text style={[styles.leakDate, isRTL && styles.rtlText]}>{formatDate(leak.publishDate)}</Text>
+            <Text style={[styles.leakSource, isRTL && styles.rtlText]}>• {leak.source}</Text>
           </View>
-          <View style={styles.credibilityContainer}>
-            <Ionicons name="shield-checkmark" size={16} color="#4CAF50" />
-            <Text style={styles.credibilityText}>Credibilidad: {leak.credibility}</Text>
+          <View style={[styles.credibilityContainer, isRTL && styles.rtlContainer]}>
+            <Ionicons name="shield-checkmark" size={16} color={getCredibilityColor(leak.credibility)} />
+            <Text style={[styles.credibilityText, isRTL && styles.rtlText]}>{translations.credibility}: {getLocalizedCredibility(leak.credibility)}</Text>
           </View>
         </View>
 
         {/* Contenido expandido */}
         <View style={styles.contentContainer}>
-          <Text style={styles.leakContent}>
-            {leak.excerpt}
-          </Text>
-          
-          {/* Contenido adicional simulado */}
-          <Text style={styles.leakContent}>
-            Según fuentes internas de Rockstar Games, el desarrollo de GTA VI ha estado en marcha desde 2014, con más de 2,000 desarrolladores trabajando en el proyecto. La filtración confirma que el juego utilizará el motor RAGE 9, una versión completamente renovada del motor gráfico.
-          </Text>
-          
-          <Text style={styles.leakContent}>
-            Los archivos filtrados revelan que el mapa de Vice City será aproximadamente 3 veces más grande que Los Santos de GTA V, con múltiples islas conectadas por puentes y túneles submarinos. Cada distrito tendrá su propia economía, actividades criminales y sistema de bandas.
-          </Text>
-          
-          <Text style={styles.leakContent}>
-            Las mecánicas de juego incluyen un sistema de reputación dinámico que afecta cómo los NPCs reaccionan al jugador, un sistema de economía realista donde los precios fluctúan según las acciones del jugador, y un modo cooperativo que permite hasta 4 jugadores explorar el mundo juntos.
-          </Text>
-          
-          <Text style={styles.leakContent}>
-            La filtración también confirma la presencia de vehículos voladores, submarinos personalizables, y un sistema de propiedades que permite a los jugadores comprar y gestionar negocios legítimos e ilegítimos en toda la ciudad.
+          <Text style={[styles.leakContent, isRTL && styles.rtlText]}>
+            {leak.content || leak.excerpt}
           </Text>
         </View>
 
         {/* Advertencia de filtración */}
-        <View style={styles.warningContainer}>
+        <View style={[styles.warningContainer, isRTL && styles.rtlContainer]}>
           <Ionicons name="warning" size={20} color="#FF9800" />
-          <Text style={styles.warningText}>
-            Esta información proviene de filtraciones no oficiales. Rockstar Games no ha confirmado estos detalles.
+          <Text style={[styles.warningText, isRTL && styles.rtlText]}>
+            {translations.unofficialWarning}
           </Text>
         </View>
 
         {/* Botones de acción */}
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+          <TouchableOpacity style={[styles.actionButton, isRTL && styles.rtlContainer]} onPress={handleShare}>
             <Ionicons name="share-social" size={20} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Compartir filtración</Text>
+            <Text style={[styles.actionButtonText, isRTL && styles.rtlText]}>{translations.shareButton}</Text>
           </TouchableOpacity>
           
           {/* <TouchableOpacity style={styles.secondaryButton}>
@@ -352,6 +382,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: '#ff6b35',
     marginLeft: 8,
+  },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
   },
 });
 

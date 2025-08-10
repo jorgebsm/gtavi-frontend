@@ -4,6 +4,9 @@ import { useInitNotifications } from './services/notifications';
 import Constants from 'expo-constants';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { LanguageProvider } from './contexts/LanguageContext';
+import LanguageTest from './components/LanguageTest'; // Descomenta para probar
+import SimpleTest from './components/SimpleTest'; // Prueba simple
 
 const isExpoGo = Constants.appOwnership === 'expo';
 
@@ -18,13 +21,19 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* Banner visual de estado de notificaciones */}
-      {/* <View style={styles.banner}>
-        {notifStatus.status === 'pending' && <Text style={styles.text}>🔄 Registrando notificaciones...</Text>}
-        {notifStatus.status === 'success' && <Text style={[styles.text, styles.success]}>✅ Notificaciones registradas. PlayerID: {notifStatus.playerId}</Text>}
-        {notifStatus.status === 'error' && <Text style={[styles.text, styles.error]}>❌ Error: {notifStatus.message}</Text>}
-      </View> */}
-      <TikTokNavigator />
+      <LanguageProvider>
+        {/* Banner visual de estado de notificaciones */}
+        {/* <View style={styles.banner}>
+          {notifStatus.status === 'pending' && <Text style={styles.text}>🔄 Registrando notificaciones...</Text>}
+          {notifStatus.status === 'success' && <Text style={styles.text}>✅ Notificaciones registradas. PlayerID: {notifStatus.playerId}</Text>}
+          {notifStatus.status === 'error' && <Text style={styles.text}>❌ Error: {notifStatus.message}</Text>}
+        </View> */}
+        
+        {/* Para probar la internacionalización, descomenta la línea siguiente y comenta TikTokNavigator */}
+        {/* <LanguageTest /> */}
+        {/* <SimpleTest /> */}
+        <TikTokNavigator />
+      </LanguageProvider>
     </GestureHandlerRootView>
   );
 }

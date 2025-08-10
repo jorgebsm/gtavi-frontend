@@ -3,21 +3,25 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Dimensions, 
 import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { trailersService } from '../services/api';
-import { useApi } from '../hooks/useApi';
+// Removemos el import de fuentes que no existe
+import { useTrailers } from '../hooks/useApiMultiLang';
+import { useLocalization } from '../hooks/useLocalization';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function TrailersScreen() {
-  // Cargar fuentes
+  // Hook de localización
+  const { translations, isRTL, formatDate } = useLocalization();
+
+  // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
 
-  // Obtener trailers desde el backend
-  const { data: trailersResponse, loading, error } = useApi(trailersService.getAll);
+  // Obtener trailers desde el backend con soporte multi-idioma
+  const { data: trailersResponse, loading, error } = useTrailers();
 
   // Datos por defecto si no hay conexión
   // const defaultTrailers = [
@@ -44,7 +48,7 @@ export default function TrailersScreen() {
   const defaultTrailers = [];
 
   // Usar datos del backend o datos por defecto
-  const trailersData = trailersResponse?.data || defaultTrailers;
+  const trailersData = trailersResponse || defaultTrailers;
 
   // Mostrar error si hay problemas con la API
   // useEffect(() => {
@@ -96,11 +100,11 @@ export default function TrailersScreen() {
             </View>
           </View>
           
-          <View style={styles.trailerInfo}>
-            <Text style={styles.trailerTitle}>{item.title}</Text>
-            <Text style={styles.trailerDate}>{formatDate(item.releaseDate)}</Text>
+          <View style={[styles.trailerInfo, isRTL && styles.rtlContainer]}>
+            <Text style={[styles.trailerTitle, isRTL && styles.rtlText]}>{item.title}</Text>
+            <Text style={[styles.trailerDate, isRTL && styles.rtlText]}>{formatDate(item.releaseDate)}</Text>
             {/* <Text style={styles.trailerDescription}>{item.description}</Text> */}
-            {/* <Text style={styles.watchText}>Toca para ver en YouTube</Text> */}
+            {/* <Text style={[styles.watchText, isRTL && styles.rtlText]}>{translations.watchTrailer}</Text> */}
           </View>
         </TouchableOpacity>
       </View>
@@ -110,8 +114,7 @@ export default function TrailersScreen() {
   // Mostrar loading mientras se cargan las fuentes
   if (!fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <View style={styles.backgroundGradient} />
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
@@ -138,14 +141,18 @@ export default function TrailersScreen() {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>TRAILERS</Text>
+          <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.trailerTitle}</Text>
           {/* <Text style={styles.headerSubtitle}>GTA VI</Text> */}
         </View>
 
         {/* Indicador de scroll */}
-        <View style={styles.scrollIndicator}>
-          <Text style={styles.scrollText}>Desliza para ver más</Text>
-          <Ionicons name="chevron-forward" size={20} color="#ff6b35" />
+        <View style={[styles.scrollIndicator, isRTL && styles.rtlContainer]}>
+          <Text style={[styles.scrollText, isRTL && styles.rtlText]}>{translations.swipeForMore}</Text>
+          <Ionicons 
+            name={isRTL ? "chevron-back" : "chevron-forward"} 
+            size={20} 
+            color="#ff6b35" 
+          />
         </View>
 
         {/* Lista de trailers con paginación */}
@@ -304,10 +311,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   playIcon: {
-    fontSize: 48,
+    fontSize: 58,
     color: '#ff6b35',
   },
   durationBadge: {
@@ -351,10 +358,29 @@ const styles = StyleSheet.create({
     color: '#ff6b35',
     marginTop: 8,
   },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
+  },
 
   trailerContainer: {
     width: screenWidth - 40,
     alignSelf: 'flex-start',
     marginTop: 0,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Poppins_400Regular',
   },
 }); 

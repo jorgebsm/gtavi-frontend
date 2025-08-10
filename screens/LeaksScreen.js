@@ -1,23 +1,27 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Linking, Image, Alert } from 'react-native';
 import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { leaksService } from '../services/api';
-import { useApi } from '../hooks/useApi';
+// Removemos el import de fuentes que no existe
+import { useLeaks } from '../hooks/useApiMultiLang';
+import { useLocalization } from '../hooks/useLocalization';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function LeaksScreen({ navigation }) {
-  // Cargar fuentes
+  // Hook de localización
+  const { translations, isRTL, formatDate } = useLocalization();
+
+  // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
 
-  // Obtener filtraciones desde el backend
-  const { data: leaksResponse, loading, error } = useApi(leaksService.getAll);
+  // Obtener filtraciones desde el backend con soporte multiidioma
+  const { data: leaksData, loading, error, currentLanguage } = useLeaks();
 
   // Datos por defecto si no hay conexión
   // const defaultLeaks = [
@@ -45,7 +49,7 @@ export default function LeaksScreen({ navigation }) {
   const defaultLeaks = [];
 
   // Usar datos del backend o datos por defecto
-  const leaksData = leaksResponse?.data || defaultLeaks;
+  const finalLeaksData = leaksData || defaultLeaks;
 
   // Mostrar error si hay problemas con la API
   // useEffect(() => {
@@ -59,30 +63,74 @@ export default function LeaksScreen({ navigation }) {
   // }, [error]);
 
   const getCredibilityColor = (credibility) => {
-    switch (credibility) {
-      case 'Alta': return '#4CAF50';
-      case 'Media': return '#FF9800';
-      case 'Baja': return '#F44336';
-      default: return '#999';
+    // Normalizar la credibilidad para ser independiente del idioma
+    const normalizedCredibility = credibility?.toLowerCase();
+    switch (normalizedCredibility) {
+      case 'alta':
+      case 'high':
+      case 'haute':
+      case 'عالية':
+      case 'wysoka':
+        return '#4CAF50';
+      case 'media':
+      case 'medium':
+      case 'moyenne':
+      case 'متوسطة':
+      case 'średnia':
+      case 'média':
+        return '#FF9800';
+      case 'baja':
+      case 'low':
+      case 'faible':
+      case 'منخفضة':
+      case 'niska':
+      case 'baixa':
+        return '#F44336';
+      default: 
+        return '#999';
+    }
+  };
+
+  const getLocalizedCredibility = (credibility) => {
+    const normalizedCredibility = credibility?.toLowerCase();
+    switch (normalizedCredibility) {
+      case 'alta':
+      case 'high':
+      case 'haute':
+      case 'عالية':
+      case 'wysoka':
+        return translations.high;
+      case 'media':
+      case 'medium':
+      case 'moyenne':
+      case 'متوسطة':
+      case 'średnia':
+      case 'média':
+        return translations.medium;
+      case 'baja':
+      case 'low':
+      case 'faible':
+      case 'منخفضة':
+      case 'niska':
+      case 'baixa':
+        return translations.low;
+      default: 
+        return credibility;
     }
   };
 
   const renderLeak = ({ item }) => {
-    // Formatear fecha para mostrar
-    const formatDate = (dateString) => {
-      if (!dateString) return 'Fecha no disponible';
+    // Formatear fecha para mostrar usando el hook de localización
+    const formatLeakDate = (dateString) => {
+      if (!dateString) return translations.dateNotAvailable;
       const date = new Date(dateString);
       const now = new Date();
       const diffTime = Math.abs(now - date);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      if (diffDays === 1) return 'Hace 1 día';
-      if (diffDays < 7) return `Hace ${diffDays} días`;
-      if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-      return date.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long' 
-      });
+      if (diffDays === 1) return `1 ${translations.daysAgo}`;
+      if (diffDays < 7) return `${diffDays} ${translations.daysAgo}`;
+      return formatDate(dateString);
     };
 
     return (
@@ -101,15 +149,15 @@ export default function LeaksScreen({ navigation }) {
               />
             </View>
           )}
-          <View style={styles.leakContentInner}>
+          <View style={[styles.leakContentInner, isRTL && styles.rtlContainer]}>
             <View style={styles.leakHeader}>
-              <Text style={styles.leakTitle}>{item.title}</Text>
+              <Text style={[styles.leakTitle, isRTL && styles.rtlText]}>{item.title}</Text>
               <View style={[styles.credibilityBadge, { backgroundColor: getCredibilityColor(item.credibility) }]}>
-                <Text style={styles.credibilityText}>{item.credibility}</Text>
+                <Text style={[styles.credibilityText, isRTL && styles.rtlText]}>{getLocalizedCredibility(item.credibility)}</Text>
               </View>
             </View>
-            <Text style={styles.leakDate}>{formatDate(item.publishDate)}</Text>
-            <Text style={styles.leakContent}>{item.excerpt}</Text>
+            <Text style={[styles.leakDate, isRTL && styles.rtlText]}>{formatLeakDate(item.publishDate)}</Text>
+            <Text style={[styles.leakContent, isRTL && styles.rtlText]}>{item.excerpt}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -119,8 +167,7 @@ export default function LeaksScreen({ navigation }) {
   // Mostrar loading mientras se cargan las fuentes
   if (!fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <View style={styles.backgroundGradient} />
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
@@ -147,21 +194,25 @@ export default function LeaksScreen({ navigation }) {
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>FILTRACIONES</Text>
+          <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.leaksTitle}</Text>
           {/* <Text style={styles.headerSubtitle}>GTA VI</Text> */}
-          <Text style={styles.headerWarning}>Información no oficial</Text>
+          <Text style={[styles.headerWarning, isRTL && styles.rtlText]}>{translations.unofficialInfo}</Text>
         </View>
 
         {/* Indicador de scroll */}
-        <View style={styles.scrollIndicator}>
-          <Text style={styles.scrollText}>Desliza para ver más</Text>
-          <Ionicons name="chevron-forward" size={20} color="#ff6b35" />
+        <View style={[styles.scrollIndicator, isRTL && styles.rtlContainer]}>
+          <Text style={[styles.scrollText, isRTL && styles.rtlText]}>{translations.swipeForMore}</Text>
+          <Ionicons 
+            name={isRTL ? "chevron-back" : "chevron-forward"} 
+            size={20} 
+            color="#ff6b35" 
+          />
         </View>
 
         {/* Lista de filtraciones con paginación */}
         <View style={styles.leaksWrapper}>
           <FlatList
-            data={leaksData}
+            data={finalLeaksData}
             renderItem={renderLeak}
             keyExtractor={(item) => item._id || item.id?.toString() || Math.random().toString()}
             horizontal
@@ -360,5 +411,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#ccc',
     lineHeight: 20,
+  },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Poppins_400Regular',
   },
 }); 

@@ -1,19 +1,18 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, StatusBar, Image, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+// Removemos el import de fuentes que no existe
+import { useLocalization } from '../hooks/useLocalization';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const NewsDetailScreen = ({ route, navigation }) => {
   const { news } = route.params;
 
-  // Cargar fuentes
-  const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-  });
+  // Hook de localización
+  const { translations, isRTL, formatDate } = useLocalization();
+
+  // No necesitamos cargar fuentes personalizadas
 
   const handleBack = () => {
     navigation.goBack();
@@ -21,26 +20,16 @@ const NewsDetailScreen = ({ route, navigation }) => {
 
   const handleShare = async () => {
     try {
-      const shareText = `${news.title}\n\nDescubre más noticias sobre GTA VI en la app GTA VI Countdown:\nhttps://play.google.com/store/apps/details?id=com.douapps.gtavicountdown`;
+      const shareText = `${news.title}\n\n${translations.shareNewsText}\nhttps://play.google.com/store/apps/details?id=com.douapps.gtavicountdown`;
       
       await Share.share({
         message: shareText,
-        title: 'Noticia GTA VI',
+        title: `${translations.newsTitle} GTA VI`,
       });
-    } catch (error) {
-      console.log('Error al compartir:', error);
-    }
+    } catch (error) {}
   };
 
-  // Mostrar loading mientras se cargan las fuentes
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.backgroundGradient} />
-        <Text style={styles.loadingText}>Cargando...</Text>
-      </View>
-    );
-  }
+  // No necesitamos verificar fuentes
 
   return (
     <View style={styles.container}>
@@ -64,7 +53,7 @@ const NewsDetailScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Ionicons name="arrow-back" size={24} color="#ff6b35" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>NOTICIA</Text>
+        <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.newsTitle}</Text>
       </View>
 
       {/* Contenido principal */}
@@ -82,46 +71,29 @@ const NewsDetailScreen = ({ route, navigation }) => {
         
         {/* Título de la noticia */}
         <View style={styles.titleContainer}>
-          <Text style={styles.newsTitle}>{news.title}</Text>
+          <Text style={[styles.newsTitle, isRTL && styles.rtlText]}>{news.title}</Text>
         </View>
 
         {/* Metadatos */}
-        <View style={styles.metaContainer}>
-          <View style={styles.metaRow}>
-            <Text style={styles.newsDate}>{news.date}</Text>
-            <Text style={styles.newsSource}>• {news.source}</Text>
+        <View style={[styles.metaContainer, isRTL && styles.rtlContainer]}>
+          <View style={[styles.metaRow, isRTL && styles.rtlContainer]}>
+            <Text style={[styles.newsDate, isRTL && styles.rtlText]}>{formatDate(news.publishDate)}</Text>
+            <Text style={[styles.newsSource, isRTL && styles.rtlText]}>• {news.source}</Text>
           </View>
         </View>
 
         {/* Contenido expandido */}
         <View style={styles.contentContainer}>
-          <Text style={styles.newsContent}>
-            {news.excerpt}
-          </Text>
-          
-          {/* Contenido adicional simulado */}
-          <Text style={styles.newsContent}>
-            Rockstar Games ha confirmado oficialmente que Grand Theft Auto VI será uno de los juegos más ambiciosos jamás creados. Con un presupuesto que supera los $2 mil millones, el desarrollo ha involucrado a más de 2,000 desarrolladores durante varios años.
-          </Text>
-          
-          <Text style={styles.newsContent}>
-            El juego presenta una recreación completamente nueva de Vice City, inspirada en la moderna Miami, con un nivel de detalle sin precedentes. Los jugadores podrán explorar múltiples islas, cada una con su propia personalidad y actividades únicas.
-          </Text>
-          
-          <Text style={styles.newsContent}>
-            Las nuevas mecánicas incluyen un sistema de redes sociales in-game que permite a los jugadores compartir fotos y videos de sus aventuras, un sistema de economía dinámico, y NPCs con inteligencia artificial avanzada que reaccionan de manera realista a las acciones del jugador.
-          </Text>
-          
-          <Text style={styles.newsContent}>
-            Los protagonistas, Lucia y Jason, representan una nueva era para la franquicia, siendo la primera vez que GTA presenta una protagonista femenina principal. Su historia de amor y crimen se desarrolla en un mundo donde las oportunidades y los peligros están en cada esquina.
+          <Text style={[styles.newsContent, isRTL && styles.rtlText]}>
+            {news.content || news.excerpt}
           </Text>
         </View>
 
         {/* Botón de acción */}
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+          <TouchableOpacity style={[styles.actionButton, isRTL && styles.rtlContainer]} onPress={handleShare}>
             <Ionicons name="share-social" size={20} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Compartir noticia</Text>
+            <Text style={[styles.actionButtonText, isRTL && styles.rtlText]}>{translations.shareButton}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -291,6 +263,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: '#FFFFFF',
     marginLeft: 8,
+  },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
   },
 });
 

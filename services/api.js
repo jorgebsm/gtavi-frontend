@@ -1,16 +1,14 @@
 import axios from 'axios';
-import { getApiUrl } from '../config/api';
+import { API_CONFIG } from '../config/api';
 
 // Configuración base de la API
-const API_BASE_URL = getApiUrl();
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Crear instancia de axios con configuración base
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  timeout: API_CONFIG.REQUEST_CONFIG.timeout,
+  headers: API_CONFIG.REQUEST_CONFIG.headers,
 });
 
 // Interceptor para manejar errores
@@ -102,12 +100,8 @@ export const leaksService = {
 
 // Función para probar la conexión con el backend
 export const testBackendConnection = async () => {
-  try {
-    console.log('🔍 Probando conexión con el backend...');
-    console.log('URL del backend:', API_BASE_URL);
-    
+  try {   
     const response = await api.get('/');
-    console.log('✅ Conexión exitosa:', response.data);
     return {
       success: true,
       data: response.data,
@@ -126,9 +120,7 @@ export const testBackendConnection = async () => {
 // Función para probar el estado de las notificaciones
 export const testNotificationsStatus = async () => {
   try {
-    console.log('🔍 Probando estado de notificaciones...');
     const response = await api.get('/notifications/status');
-    console.log('✅ Estado de notificaciones:', response.data);
     return {
       success: true,
       data: response.data,

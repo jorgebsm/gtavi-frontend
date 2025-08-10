@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Linking, Share, StyleSheet, Dimensions, Animated, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+// Removemos el import de fuentes que no existe
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import BackendConnectionTest from '../components/BackendConnectionTest';
+import { useLocalization } from '../hooks/useLocalization';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MoreScreen = () => {
-  // Cargar fuentes
+  // Hook de localización
+  const { translations, isRTL } = useLocalization();
+  
+  // Hook de idioma
+  const { currentLanguageInfo } = useLanguage();
+  
+  // Estado para el selector de idioma
+  const [languageSelectorVisible, setLanguageSelectorVisible] = useState(false);
+
+  // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
@@ -26,19 +39,22 @@ const MoreScreen = () => {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: '¿Cuántos días faltan para que salga GTA VI? Descarga GTA VI Countdown, la app para estar al día con las últimas noticias, trailers y filtraciones de Grand Theft Auto VI.\n\nhttps://play.google.com/store/apps/details?id=com.douapps.gtavicountdown',
-        title: 'GTA VI Countdown',
+        message: `${translations.shareMessage}\n\nhttps://play.google.com/store/apps/details?id=com.douapps.gtavicountdown`,
+        title: translations.appTitle,
       });
     } catch (error) {
-      console.error('Error al compartir:', error);
+      console.error(`${translations.shareError}`, error);
     }
+  };
+
+  const handleLanguageSelect = () => {
+    setLanguageSelectorVisible(true);
   };
 
   // Mostrar loading mientras se cargan las fuentes
   if (!fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <View style={styles.gradientOverlay} />
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
@@ -69,8 +85,8 @@ const MoreScreen = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>EXTRAS</Text>
-          <Text style={styles.headerSubtitle}>Opciones adicionales</Text>
+          <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.extrasTitle}</Text>
+          <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>
         </View>
         
         {/* Botones principales */}
@@ -82,12 +98,12 @@ const MoreScreen = () => {
             activeOpacity={0.8}
           >
             <View style={styles.buttonGradient}>
-              <View style={styles.buttonContent}>
+              <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
                 <View style={styles.iconContainer}>
                   <Ionicons name="star" size={32} color="#FFFFFF" />
                 </View>
-                <Text style={styles.buttonTitle}>Califícanos</Text>
-                <Text style={styles.buttonSubtitle}>Ayuda a otros jugadores</Text>
+                <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.rateApp}</Text>
+                <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>{translations.rateDescription}</Text>
               </View>
               <View style={styles.buttonGlow} />
             </View>
@@ -100,12 +116,32 @@ const MoreScreen = () => {
             activeOpacity={0.8}
           >
             <View style={[styles.buttonGradient, styles.buttonGradientGreen]}>
-              <View style={styles.buttonContent}>
+              <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
                 <View style={styles.iconContainer}>
                   <Ionicons name="share-social" size={32} color="#FFFFFF" />
                 </View>
-                <Text style={styles.buttonTitle}>Comparte</Text>
-                <Text style={styles.buttonSubtitle}>Con amigos, gamers y familia</Text>
+                <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.shareApp}</Text>
+                <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>{translations.shareDescription}</Text>
+              </View>
+              <View style={styles.buttonGlow} />
+            </View>
+          </TouchableOpacity>
+
+          {/* Botón Seleccionar Idioma */}
+          <TouchableOpacity 
+            style={styles.buttonWrapper} 
+            onPress={handleLanguageSelect}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.buttonGradient, styles.buttonGradientBlue]}>
+              <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
+                <View style={styles.iconContainer}>
+                  <Ionicons name="language" size={32} color="#FFFFFF" />
+                </View>
+                <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.language}</Text>
+                <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>
+                  {currentLanguageInfo.name}
+                </Text>
               </View>
               <View style={styles.buttonGlow} />
             </View>
@@ -117,10 +153,16 @@ const MoreScreen = () => {
 
         {/* Información adicional */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>GTA VI Countdown — App v1.0.0</Text>
-          <Text style={styles.footerSubtext}>Mantente actualizado </Text>
+          {/* <Text style={styles.footerText}>GTA VI Countdown — App v1.0.0</Text> */}
+          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.0.0</Text>
         </View>
       </ScrollView>
+
+      {/* Selector de Idioma */}
+      <LanguageSelector
+        visible={languageSelectorVisible}
+        onClose={() => setLanguageSelectorVisible(false)}
+      />
     </View>
   );
 };
@@ -192,7 +234,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 30,
     minHeight: '100%',
     justifyContent: 'space-between',
   },
@@ -204,7 +246,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: -20,
+    marginBottom: 0,
   },
   headerTitle: {
     fontSize: 32,
@@ -222,11 +264,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 25,
+    gap: 15,
   },
   buttonWrapper: {
     width: screenWidth - 100,
-    height: 200,
+    height: 140,
     // borderRadius: 20,
     // shadowColor: '#000',
     // shadowOffset: { width: 0, height: 8 },
@@ -236,7 +278,7 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     flex: 1,
-    borderRadius: 0,
+    borderRadius: 20,
     padding: 25,
     justifyContent: 'center',
     position: 'relative',
@@ -245,26 +287,29 @@ const styles = StyleSheet.create({
   buttonGradientGreen: {
     backgroundColor: '#4CAF50',
   },
+  buttonGradientBlue: {
+    backgroundColor: '#2196F3',
+  },
   buttonContent: {
     alignItems: 'center',
     zIndex: 2,
   },
   iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 55,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 4,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   buttonTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Poppins_700Bold',
     color: '#FFFFFF',
-    marginBottom: 3,
+    // marginBottom: 3,
   },
   buttonSubtitle: {
     fontSize: 12,
@@ -300,6 +345,20 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#ffffff',
     opacity: 0.6,
+  },
+  // Estilos RTL
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlContainer: {
+    flexDirection: 'row-reverse',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
   },
 });
 
