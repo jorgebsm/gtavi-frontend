@@ -14,6 +14,9 @@ export default function HomeScreen() {
     seconds: 0
   });
 
+  // Estado para el loading
+  const [isLoading, setIsLoading] = useState(true);
+
   // Hook de localización
   const { translations, isRTL } = useLocalization();
 
@@ -33,6 +36,13 @@ export default function HomeScreen() {
 
   // Usar el cálculo del servidor si está disponible, sino calcular localmente
   const serverTimeRemaining = launchDateData?.data?.timeRemaining;
+  
+  // Efecto para cambiar el estado de loading cuando los datos estén listos
+  useEffect(() => {
+    if (timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0) {
+      setIsLoading(false);
+    }
+  }, [timeLeft]);
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -131,7 +141,7 @@ export default function HomeScreen() {
       {/* Contenido principal */}
       <View style={styles.content}>
         {/* Imagen de GTA VI */}
-        <View style={styles.imageContainer}>
+        <View style={styles.fixedLogoContainer}>
           {/* Animación de Lottie detrás del logo */}
           <View style={styles.lottieContainer}>
             <LottieView
@@ -149,29 +159,49 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Contador de días */}
-        <View style={styles.daysContainer}>
-          <Text style={styles.daysNumber}>{timeLeft.days}</Text>
-          <Text style={[styles.daysLabel, isRTL && styles.rtlText]}>{translations.days}</Text>
-        </View>
+        {/* Contenido dinámico para loading y countdown */}
+        <View style={styles.dynamicContent}>
+          {isLoading ? (
+            // Animación de loading
+            <LottieView 
+              source={require('../assets/animations/loading.json')}
+              style={styles.loadingLottieAnimation}
+              autoPlay
+              loop
+              speed={1}
+            />
+          ) : (
+            // Countdown
+            <View>
+              {/* Contador de días */}
+              <View style={styles.daysContainer}>
+                <Text style={styles.daysNumber}>{timeLeft.days}</Text>
+                <Text style={[styles.daysLabel, isRTL && styles.rtlText]}>{translations.days}</Text>
+              </View>
 
-        {/* Contador de tiempo */}
-        <View style={[styles.timeContainer, isRTL && styles.rtlContainer]}>
-          <View style={styles.timeUnit}>
-            <Text style={styles.timeNumber}>{String(timeLeft.hours).padStart(2, '0')}</Text>
-            <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.hours}</Text>
-          </View>
-          <Text style={styles.timeSeparator}>:</Text>
-          <View style={styles.timeUnit}>
-            <Text style={styles.timeNumber}>{String(timeLeft.minutes).padStart(2, '0')}</Text>
-            <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.minutes}</Text>
-          </View>
-          <Text style={styles.timeSeparator}>:</Text>
-          <View style={styles.timeUnit}>
-            <Text style={styles.timeNumber}>{String(timeLeft.seconds).padStart(2, '0')}</Text>
-            <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.seconds}</Text>
-          </View>
+              {/* Contador de tiempo */}
+              <View style={[styles.timeContainer, isRTL && styles.rtlContainer]}>
+                <View style={styles.timeUnit}>
+                  <Text style={styles.timeNumber}>{String(timeLeft.hours).padStart(2, '0')}</Text>
+                  <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.hours}</Text>
+                </View>
+                <Text style={styles.timeSeparator}>:</Text>
+                <View style={styles.timeUnit}>
+                  <Text style={styles.timeNumber}>{String(timeLeft.minutes).padStart(2, '0')}</Text>
+                  <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.minutes}</Text>
+                </View>
+                <Text style={styles.timeSeparator}>:</Text>
+                <View style={styles.timeUnit}>
+                  <Text style={styles.timeNumber}>{String(timeLeft.seconds).padStart(2, '0')}</Text>
+                  <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.seconds}</Text>
+                </View>
+              </View>
+            </View>
+          )}
         </View>
+        
+        
+
       </View>
     </View>
   );
@@ -274,6 +304,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  lottieContainerLoading: {
+    position: 'absolute',
+    top: -50,
+    left: -50,
+    right: -50,
+    bottom: -50,
+    zIndex: -1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lottieAnimationLoading: {
+    width: 500,
+    height: 500,
+    opacity: 1,
+    top: 0
+  },
   lottieAnimation: {
     width: 500,
     height: 500,
@@ -337,5 +383,30 @@ const styles = StyleSheet.create({
   },
   rtlContainer: {
     flexDirection: 'row-reverse',
+  },
+  fixedLogoContainer: {
+    position: 'absolute',
+    top: '15%',
+    left: '50%',
+    transform: [{ translateX: -150 }],
+    zIndex: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dynamicContent: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -150 }],
+    zIndex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 300,
+  },
+  loadingLottieAnimation: {
+    width: 200,
+    height: 200,
+    opacity: 1,
+    top: 100
   },
 }); 

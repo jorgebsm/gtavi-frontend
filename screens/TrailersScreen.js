@@ -68,14 +68,17 @@ export default function TrailersScreen() {
   };
 
   const renderTrailer = ({ item }) => {
-    // Formatear fecha para mostrar
-    const formatDate = (dateString) => {
-      if (!dateString) return 'Fecha no disponible';
+    // Formatear fecha para mostrar usando el hook de localización
+    const formatTrailerDate = (dateString) => {
+      if (!dateString) return translations.dateNotAvailable;
       const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long' 
-      });
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) return `1 ${translations.daysAgo}`;
+      if (diffDays < 7) return `${diffDays} ${translations.daysAgo}`;
+      return formatDate(dateString);
     };
 
     return (
@@ -102,7 +105,7 @@ export default function TrailersScreen() {
           
           <View style={[styles.trailerInfo, isRTL && styles.rtlContainer]}>
             <Text style={[styles.trailerTitle, isRTL && styles.rtlText]}>{item.title}</Text>
-            <Text style={[styles.trailerDate, isRTL && styles.rtlText]}>{formatDate(item.releaseDate)}</Text>
+            <Text style={[styles.trailerDate, isRTL && styles.rtlText]}>{formatTrailerDate(item.releaseDate)}</Text>
             {/* <Text style={styles.trailerDescription}>{item.description}</Text> */}
             {/* <Text style={[styles.watchText, isRTL && styles.rtlText]}>{translations.watchTrailer}</Text> */}
           </View>
