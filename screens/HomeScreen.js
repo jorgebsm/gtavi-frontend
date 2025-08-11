@@ -16,6 +16,7 @@ export default function HomeScreen() {
 
   // Estado para el loading
   const [isLoading, setIsLoading] = useState(true);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   // Hook de localización
   const { translations, isRTL } = useLocalization();
@@ -41,6 +42,8 @@ export default function HomeScreen() {
   useEffect(() => {
     if (timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0) {
       setIsLoading(false);
+      // Pequeño delay para la transición suave
+      setTimeout(() => setShowCountdown(true), 10);
     }
   }, [timeLeft]);
   
@@ -162,17 +165,17 @@ export default function HomeScreen() {
         {/* Contenido dinámico para loading y countdown */}
         <View style={styles.dynamicContent}>
           {isLoading ? (
-            // Animación de loading
+            // Animación de loading con transición
             <LottieView 
               source={require('../assets/animations/loading.json')}
-              style={styles.loadingLottieAnimation}
+              style={[styles.loadingLottieAnimation, { opacity: isLoading ? 1 : 0 }]}
               autoPlay
               loop
               speed={1}
             />
           ) : (
-            // Countdown
-            <View>
+            // Countdown con transición suave
+            <View style={[styles.countdownContainer, { opacity: showCountdown ? 1 : 0 }]}>
               {/* Contador de días */}
               <View style={styles.daysContainer}>
                 <Text style={styles.daysNumber}>{timeLeft.days}</Text>
@@ -408,5 +411,10 @@ const styles = StyleSheet.create({
     height: 200,
     opacity: 1,
     top: 100
+  },
+  countdownContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'opacity 0.3s ease-in-out',
   },
 }); 

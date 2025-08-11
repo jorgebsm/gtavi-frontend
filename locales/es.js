@@ -1,6 +1,7 @@
 export default {
   // HomeScreen
   loading: 'Cargando...',
+  preparingCountdown: 'Preparando countdown...',
   days: 'DÍAS',
   hours: 'HORAS',
   minutes: 'MINUTOS',
