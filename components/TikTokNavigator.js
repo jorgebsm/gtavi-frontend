@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, StyleSheet, Dimensions, ScrollView, Modal } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
@@ -9,6 +9,8 @@ import LeaksScreen from '../screens/LeaksScreen';
 import MoreScreen from '../screens/MoreScreen';
 import NewsDetailScreen from '../screens/NewsDetailScreen';
 import LeaksDetailScreen from '../screens/LeaksDetailScreen';
+import InterstitialAdScreen from './InterstitialAdScreen';
+import adService from '../services/adService';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -23,16 +25,57 @@ const screens = [
 ];
 
 // Componente principal que maneja el scroll vertical
-function MainNavigator({ navigation }) {
+function MainNavigator({ navigation, onIndexChange }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showAd, setShowAd] = useState(false);
+  const [adConfig, setAdConfig] = useState({});
   const scrollViewRef = useRef(null);
+  const previousIndex = useRef(0);
 
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / screenHeight);
     if (index !== currentIndex) {
+      previousIndex.current = currentIndex;
       setCurrentIndex(index);
+      if (typeof onIndexChange === 'function') {
+        try { onIndexChange(index, screens.length); } catch (_) {}
+      }
+      
+      // Verificar si se debe mostrar anuncio
+      checkForAdTransition(previousIndex.current, index);
     }
+  };
+
+  // Verificar transición para mostrar anuncios
+  const checkForAdTransition = async (fromIndex, toIndex) => {
+    const screenNames = ['Home', 'Trailers', 'News', 'Leaks', 'More'];
+    const fromScreen = screenNames[fromIndex];
+    const toScreen = screenNames[toIndex];
+    
+    // Verificar si se debe mostrar anuncio
+    const shouldShowAd = await adService.handleScreenTransition(fromScreen, toScreen);
+    
+    if (shouldShowAd) {
+      setAdConfig({
+        fromScreen,
+        toScreen,
+        duration: 5, // 5 segundos por defecto
+      });
+      setShowAd(true);
+    }
+  };
+
+  // Manejar finalización del anuncio
+  const handleAdComplete = () => {
+    setShowAd(false);
+    console.log('✅ Anuncio completado');
+  };
+
+  // Manejar salto del anuncio
+  const handleSkipAd = () => {
+    setShowAd(false);
+    console.log('⏭️ Anuncio saltado');
   };
 
   const renderScreen = (screen, index) => {
@@ -73,11 +116,42 @@ function MainNavigator({ navigation }) {
           />
         ))}
       </View>
+
+      {/* Modal de anuncio intersticial */}
+      <Modal
+        visible={showAd}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowAd(false)}
+      >
+        <InterstitialAdScreen
+          onAdComplete={handleAdComplete}
+          onSkipAd={handleSkipAd}
+          adDuration={adConfig.duration || 5}
+        />
+      </Modal>
     </View>
   );
 }
 
-export default function TikTokNavigator() {
+export default function TikTokNavigator({ onIndexChange, onTotalPages }) {
+  // Inicializar servicio de anuncios
+  useEffect(() => {
+    const initAds = async () => {
+      try {
+        await adService.initialize();
+        console.log('🚀 Servicio de anuncios inicializado en TikTokNavigator');
+      } catch (error) {
+        console.error('❌ Error inicializando anuncios:', error);
+      }
+    };
+
+    initAds();
+    if (typeof onTotalPages === 'function') {
+      try { onTotalPages(screens.length); } catch (_) {}
+    }
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -86,7 +160,9 @@ export default function TikTokNavigator() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="Main" component={MainNavigator} />
+        <Stack.Screen name="Main">
+          {(props) => <MainNavigator {...props} onIndexChange={onIndexChange} />}
+        </Stack.Screen>
         <Stack.Screen name="NewsDetail" component={NewsDetailScreen} />
         <Stack.Screen name="LeaksDetail" component={LeaksDetailScreen} />
       </Stack.Navigator>

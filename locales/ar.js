@@ -79,5 +79,20 @@ export default {
   selectLanguage: 'اختر اللغة',
   currentLanguage: 'اللغة الحالية:',
   languageAppliedToApp: 'سيتم تطبيق اللغة على التطبيق بأكمله',
-  close: 'إغلاق'
+  close: 'إغلاق',
+
+  // Onboarding
+  ob_welcome_title: 'اسحب لاكتشاف GTA VI Countdown',
+  ob_welcome_sub: 'اسحب للأعلى للمتابعة',
+  ob_trailers_title: 'شاهد العروض الرسمية',
+  ob_trailers_sub: 'اكتشف أحدث فيديوهات GTA VI',
+  ob_news_title: 'تابع الأخبار',
+  ob_news_sub: 'تحديثات وأخبار في مكان واحد',
+  ob_leaks_title: 'استكشف التسريبات',
+  ob_leaks_sub: 'شائعات واكتشافات المجتمع',
+  ob_reminders_title: 'هل تريد تذكيرات يومية؟',
+  ob_reminders_sub: 'سنخبرك بعدد الأيام المتبقية',
+  ob_cta_enable: 'أريد التذكيرات',
+  ob_skip: 'عرض التطبيق'
 };
+// ملاحظة: مفاتيح الإعداد الأولي اختيارية وتحتوي على قيم افتراضية في الكود

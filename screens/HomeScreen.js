@@ -330,8 +330,8 @@ const styles = StyleSheet.create({
     top: 100
   },
   logoImage: {
-    width: 300,
-    height: 300,
+    width: 270,
+    height: 270,
     // borderRadius: 10,
   },
   daysContainer: {

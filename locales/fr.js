@@ -70,5 +70,12 @@ export default {
   selectLanguage: 'Sélectionner la Langue',
   currentLanguage: 'Langue actuelle:',
   languageAppliedToApp: 'La langue sera appliquée à toute l\'application',
-  close: 'Fermer'
+  close: 'Fermer',
+
+  // Onboarding (clés utilisées uniquement)
+  ob_reminders_title: 'Une notification par jour',
+  ob_reminders_sub: 'On vous dira combien de jours il reste. Ça vous va ?',
+  ob_cta_enable: 'D\'accord',
+  ob_cta_reject: 'Sans notifications'
 };
+// Remarque: les clés d'onboarding sont facultatives et ont des valeurs par défaut dans le code

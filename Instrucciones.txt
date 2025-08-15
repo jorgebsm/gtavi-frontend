@@ -12,3 +12,6 @@ eas build -p android --profile preview
 
 #COMPILAR AAB:
 eas build -p android --profile production
+
+#Letra de logo:
+pricedown

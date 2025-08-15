@@ -71,5 +71,12 @@ export default {
   selectLanguage: 'Select Language',
   currentLanguage: 'Current language:',
   languageAppliedToApp: 'The language will be applied to the entire application',
-  close: 'Close'
+  close: 'Close',
+
+  // Onboarding (only used keys)
+  ob_reminders_title: 'One notification a day',
+  ob_reminders_sub: 'We will tell you how many days are left. Sounds good?',
+  ob_cta_enable: 'Agree',
+  ob_cta_reject: 'No notifications'
 };
+// Note: onboarding keys are optional and defaulted in code if missing

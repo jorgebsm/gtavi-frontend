@@ -70,5 +70,12 @@ export default {
   selectLanguage: 'Wybierz Język',
   currentLanguage: 'Obecny język:',
   languageAppliedToApp: 'Język zostanie zastosowany w całej aplikacji',
-  close: 'Zamknij'
+  close: 'Zamknij',
+
+  // Onboarding (tylko używane klucze)
+  ob_reminders_title: 'Jedno powiadomienie dziennie',
+  ob_reminders_sub: 'Powiemy, ile dni zostało. W porządku?',
+  ob_cta_enable: 'Zgadzam się',
+  ob_cta_reject: 'Bez powiadomień'
 };
+// Uwaga: klucze onboarding są opcjonalne, w kodzie są wartości domyślne

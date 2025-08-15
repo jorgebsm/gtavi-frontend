@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Linking, Share, StyleSheet, Dimensions, Animated, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -7,13 +7,16 @@ import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } fr
 import BackendConnectionTest from '../components/BackendConnectionTest';
 import { useLocalization } from '../hooks/useLocalization';
 import { useLanguage } from '../contexts/LanguageContext';
+import LottieView from 'lottie-react-native';
+import useOnboardingStatus from '../hooks/useOnboardingStatus';
+import { requestAndRegisterNotifications } from '../services/notifications';
 import LanguageSelector from '../components/LanguageSelector';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MoreScreen = () => {
   // Hook de localización
-  const { translations, isRTL } = useLocalization();
+  const { translations, isRTL, t } = useLocalization();
   
   // Hook de idioma
   const { currentLanguageInfo } = useLanguage();
@@ -27,6 +30,11 @@ const MoreScreen = () => {
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
+
+  // Estado de onboarding (para saber si ya decidió y ocultar tarjeta)
+  const { isCompleted, markCompleted, markPrompted, markRejected } = useOnboardingStatus();
+
+  // No inicializar OneSignal aquí. Se hará solo tras consentimiento.
 
   const handleRate = () => {
     // Redirigir a la Play Store (reemplazar con el ID real de la app)
@@ -65,10 +73,10 @@ const MoreScreen = () => {
       <StatusBar style="light" />
       
       {/* Gradiente de fondo */}
-      <View style={styles.backgroundGradient} />
+      <View style={styles.backgroundGradient} pointerEvents="none" />
       
       {/* Efectos de partículas */}
-      <View style={styles.particlesContainer}>
+      <View style={styles.particlesContainer} pointerEvents="none">
         {/* <View style={[styles.particle, styles.particle1]} /> */}
         {/* <View style={[styles.particle, styles.particle2]} /> */}
         {/* <View style={[styles.particle, styles.particle3]} /> */}
@@ -89,64 +97,105 @@ const MoreScreen = () => {
           <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>
         </View>
         
-        {/* Botones principales */}
-        <View style={styles.buttonsContainer}>
-          {/* Botón Califícanos */}
-          <TouchableOpacity 
-            style={styles.buttonWrapper} 
-            onPress={handleRate}
-            activeOpacity={0.8}
-          >
-            <View style={styles.buttonGradient}>
-              <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
-                <View style={styles.iconContainer}>
-                  <Ionicons name="star" size={32} color="#FFFFFF" />
+        {isCompleted ? (
+          <View style={styles.buttonsContainer}>
+            {/* Botón Califícanos */}
+            <TouchableOpacity 
+              style={styles.buttonWrapper} 
+              onPress={handleRate}
+              activeOpacity={0.8}
+            >
+              <View style={styles.buttonGradient}>
+                <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
+                  <View style={styles.iconContainer}>
+                    <Ionicons name="star" size={32} color="#FFFFFF" />
+                  </View>
+                  <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.rateApp}</Text>
+                  <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>{translations.rateDescription}</Text>
                 </View>
-                <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.rateApp}</Text>
-                <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>{translations.rateDescription}</Text>
+                <View style={styles.buttonGlow} />
               </View>
-              <View style={styles.buttonGlow} />
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          {/* Botón Comparte */}
-          <TouchableOpacity 
-            style={styles.buttonWrapper} 
-            onPress={handleShare}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.buttonGradient, styles.buttonGradientGreen]}>
-              <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
-                <View style={styles.iconContainer}>
-                  <Ionicons name="share-social" size={32} color="#FFFFFF" />
+            {/* Botón Comparte */}
+            <TouchableOpacity 
+              style={styles.buttonWrapper} 
+              onPress={handleShare}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.buttonGradient, styles.buttonGradientGreen]}>
+                <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
+                  <View style={styles.iconContainer}>
+                    <Ionicons name="share-social" size={32} color="#FFFFFF" />
+                  </View>
+                  <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.shareApp}</Text>
+                  <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>{translations.shareDescription}</Text>
                 </View>
-                <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.shareApp}</Text>
-                <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>{translations.shareDescription}</Text>
+                <View style={styles.buttonGlow} />
               </View>
-              <View style={styles.buttonGlow} />
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          {/* Botón Seleccionar Idioma */}
-          <TouchableOpacity 
-            style={styles.buttonWrapper} 
-            onPress={handleLanguageSelect}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.buttonGradient, styles.buttonGradientBlue]}>
-              <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
-                <View style={styles.iconContainer}>
-                  <Ionicons name="language" size={32} color="#FFFFFF" />
+            {/* Botón Seleccionar Idioma */}
+            <TouchableOpacity 
+              style={styles.buttonWrapper} 
+              onPress={handleLanguageSelect}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.buttonGradient, styles.buttonGradientBlue]}>
+                <View style={[styles.buttonContent, isRTL && styles.rtlContainer]}>
+                  <View style={styles.iconContainer}>
+                    <Ionicons name="language" size={32} color="#FFFFFF" />
+                  </View>
+                  <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.language}</Text>
+                  <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>
+                    {currentLanguageInfo.name}
+                  </Text>
                 </View>
-                <Text style={[styles.buttonTitle, isRTL && styles.rtlText]}>{translations.language}</Text>
-                <Text style={[styles.buttonSubtitle, isRTL && styles.rtlText]}>
-                  {currentLanguageInfo.name}
+                <View style={styles.buttonGlow} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.alertCard}>
+            <Text style={[styles.alertTitle, fontsLoaded && { fontFamily: 'Poppins_700Bold' }]}>
+              {t('ob_reminders_title')}
+            </Text>
+            <Text style={[styles.alertSubtitle, fontsLoaded && { fontFamily: 'Poppins_400Regular' }]}>
+              {t('ob_reminders_sub')}
+            </Text>
+            <LottieView
+              source={require('../assets/animations/notifications.json')}
+              autoPlay
+              loop
+              style={styles.alertLottie}
+              speed={1}
+              pointerEvents="none"
+            />
+            <View style={styles.alertButtonsRow}>
+              <TouchableOpacity
+                style={styles.alertReject}
+                onPress={async () => { await markRejected(); await markCompleted(); }}
+              >
+                <Text style={[styles.alertRejectText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
+                  {t('ob_cta_reject')}
                 </Text>
-              </View>
-              <View style={styles.buttonGlow} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.alertAccept}
+                onPress={async () => {
+                  await markPrompted();
+                  const granted = await requestAndRegisterNotifications();
+                  await markCompleted();
+                  if (!granted) await markRejected();
+                }}
+              >
+                <Text style={[styles.alertAcceptText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
+                  {t('ob_cta_enable')}
+                </Text>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
 
         {/* Componente de prueba de conexión */}
         {/* <BackendConnectionTest /> */}
@@ -154,7 +203,7 @@ const MoreScreen = () => {
         {/* Información adicional */}
         <View style={styles.footer}>
           {/* <Text style={styles.footerText}>GTA VI Countdown — App v1.0.0</Text> */}
-          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.0.0</Text>
+          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.0.1</Text>
         </View>
       </ScrollView>
 
@@ -329,6 +378,63 @@ const styles = StyleSheet.create({
     // borderWidth: 2,
     // borderColor: 'rgba(255, 255, 255, 0.3)',
     // zIndex: 1,
+  },
+  // estilos del bloque de alertas
+  alertCard: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+    paddingVertical: 30,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderWidth: 0,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  alertTitle: {
+    color: '#fff',
+    fontSize: 23,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  alertSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  alertLottie: {
+    width: screenWidth * 0.75,
+    height: screenWidth * 0.75,
+    marginVertical: 8,
+  },
+  alertButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  alertReject: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  alertRejectText: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 14,
+  },
+  alertAccept: {
+    backgroundColor: '#22c55e',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  alertAcceptText: {
+    color: '#fff',
+    fontSize: 14,
   },
   footer: {
     alignItems: 'center',

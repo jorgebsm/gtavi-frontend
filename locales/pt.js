@@ -70,5 +70,12 @@ export default {
   selectLanguage: 'Selecionar Idioma',
   currentLanguage: 'Idioma atual:',
   languageAppliedToApp: 'O idioma será aplicado a toda a aplicação',
-  close: 'Fechar'
+  close: 'Fechar',
+
+  // Onboarding (apenas chaves usadas)
+  ob_reminders_title: 'Uma notificação por dia',
+  ob_reminders_sub: 'Vamos dizer quantos dias faltam. Tudo bem?',
+  ob_cta_enable: 'Concordo',
+  ob_cta_reject: 'Sem notificações'
 };
+// Observação: chaves de onboarding são opcionais e têm defaults no código
