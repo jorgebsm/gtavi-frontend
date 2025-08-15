@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   },
   pageIndicators: {
     position: 'absolute',
-    right: 24,
+    right: 2.5,
     top: '50%',
     transform: [{ translateY: -50 }],
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Linking, Share, StyleSheet, Dimensions, Animated, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, Share, StyleSheet, Dimensions, Animated, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 // Removemos el import de fuentes que no existe
@@ -11,12 +11,14 @@ import LottieView from 'lottie-react-native';
 import useOnboardingStatus from '../hooks/useOnboardingStatus';
 import { requestAndRegisterNotifications } from '../services/notifications';
 import LanguageSelector from '../components/LanguageSelector';
+import { useBackgrounds } from '../contexts/BackgroundContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MoreScreen = () => {
   // Hook de localización
   const { translations, isRTL, t } = useLocalization();
+  const { getBackgroundFor } = useBackgrounds();
   
   // Hook de idioma
   const { currentLanguageInfo } = useLanguage();
@@ -73,17 +75,16 @@ const MoreScreen = () => {
       <StatusBar style="light" />
       
       {/* Gradiente de fondo */}
-      <View style={styles.backgroundGradient} pointerEvents="none" />
-      
-      {/* Efectos de partículas */}
-      <View style={styles.particlesContainer} pointerEvents="none">
-        {/* <View style={[styles.particle, styles.particle1]} /> */}
-        {/* <View style={[styles.particle, styles.particle2]} /> */}
-        {/* <View style={[styles.particle, styles.particle3]} /> */}
-        {/* <View style={[styles.particle, styles.particle4]} /> */}
-        {/* <View style={[styles.particle, styles.particle5]} /> */}
-        {/* <View style={[styles.particle, styles.particle6]} /> */}
-      </View>
+      <View style={styles.backgroundGradient} />
+
+      {/* Imagen de fondo */}
+      {getBackgroundFor('More') && (
+        <Image
+          source={getBackgroundFor('More')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+      )}
       
       {/* Contenido principal */}
       <ScrollView 
@@ -202,8 +203,7 @@ const MoreScreen = () => {
 
         {/* Información adicional */}
         <View style={styles.footer}>
-          {/* <Text style={styles.footerText}>GTA VI Countdown — App v1.0.0</Text> */}
-          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.0.1</Text>
+          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.1.0</Text>
         </View>
       </ScrollView>
 
@@ -227,55 +227,19 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0f0f23',
+    // backgroundColor: '#0f0f23',
+    backgroundColor: '#000000',
   },
-  particlesContainer: {
+  backgroundImage: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  particle: {
-    position: 'absolute',
-    backgroundColor: 'rgba(255, 107, 53, 0.3)',
-    borderRadius: 50,
-  },
-  particle1: {
-    width: 8,
-    height: 8,
-    top: '20%',
-    left: '15%',
-  },
-  particle2: {
-    width: 12,
-    height: 12,
-    top: '60%',
-    right: '20%',
-  },
-  particle3: {
-    width: 8,
-    height: 8,
-    top: '90%',
-    left: '25%',
-  },
-  particle4: {
-    width: 10,
-    height: 10,
-    top: '14%',
-    left: '14%',
-  },
-  particle5: {
-    width: 8,
-    height: 8,
-    top: '30%',
-    left: '15%',
-  },
-  particle6: {
-    width: 14,
-    height: 14,
-    top: '10%',
-    right: '25%',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+    opacity: 0.25,
   },
   scrollView: {
     flex: 1,
@@ -331,13 +295,13 @@ const styles = StyleSheet.create({
     padding: 25,
     justifyContent: 'center',
     position: 'relative',
-    backgroundColor: '#FFD700',
+    backgroundColor: 'rgba(255, 215, 0, 0.5)',
   },
   buttonGradientGreen: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'rgba(76, 175, 80, 0.5)',
   },
   buttonGradientBlue: {
-    backgroundColor: '#2196F3',
+    backgroundColor: 'rgba(33, 150, 243, 0.5)',
   },
   buttonContent: {
     alignItems: 'center',
@@ -379,16 +343,16 @@ const styles = StyleSheet.create({
     // borderColor: 'rgba(255, 255, 255, 0.3)',
     // zIndex: 1,
   },
-  // estilos del bloque de alertas
+  // Alert card styles
   alertCard: {
     width: '100%',
     maxWidth: 520,
     alignSelf: 'center',
-    paddingVertical: 30,
-    paddingHorizontal: 10,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderWidth: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderWidth: 3,
     borderColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
   },
@@ -439,12 +403,6 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'center',
     marginBottom: 40,
-  },
-  footerText: {
-    fontSize: 16,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#ffffff',
-    marginBottom: 4,
   },
   footerSubtext: {
     fontSize: 14,

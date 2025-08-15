@@ -12,6 +12,7 @@ import FEATURE_FLAGS from './config/featureFlags';
 import useOnboardingStatus from './hooks/useOnboardingStatus';
 import OnboardingNavigator from './components/onboarding/OnboardingNavigator';
 import OnboardingOverlay from './components/onboarding/OnboardingOverlay';
+import { BackgroundProvider } from './contexts/BackgroundContext';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -49,6 +50,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
+        <BackgroundProvider>
         {/* Banner visual de estado de notificaciones */}
         {/* <View style={styles.banner}>
           {notifStatus.status === 'pending' && <Text style={styles.text}>🔄 Registrando notificaciones...</Text>}
@@ -75,6 +77,7 @@ export default function App() {
           total={overlayState.total}
           isFinal={false}
         />
+        </BackgroundProvider>
       </LanguageProvider>
     </GestureHandlerRootView>
   );

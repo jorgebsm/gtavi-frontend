@@ -95,17 +95,6 @@ const LeaksDetailScreen = ({ route, navigation }) => {
       
       {/* Gradiente de fondo */}
       <View style={styles.backgroundGradient} />
-      
-      {/* Efectos de partículas */}
-      {/* <View style={styles.particlesContainer}>
-        <View style={[styles.particle, styles.particle1]} />
-        <View style={[styles.particle, styles.particle2]} />
-        <View style={[styles.particle, styles.particle3]} />
-        <View style={[styles.particle, styles.particle4]} />
-        <View style={[styles.particle, styles.particle5]} />
-        <View style={[styles.particle, styles.particle6]} />
-      </View> */}
-      
       {/* Header con botón de regreso */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -187,55 +176,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0f0f23',
-  },
-  particlesContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  particle: {
-    position: 'absolute',
-    backgroundColor: 'rgba(255, 107, 53, 0.3)',
-    borderRadius: 50,
-  },
-  particle1: {
-    width: 8,
-    height: 8,
-    top: '20%',
-    left: '15%',
-  },
-  particle2: {
-    width: 12,
-    height: 12,
-    top: '60%',
-    right: '20%',
-  },
-  particle3: {
-    width: 6,
-    height: 6,
-    top: '80%',
-    left: '25%',
-  },
-  particle4: {
-    width: 10,
-    height: 10,
-    top: '30%',
-    right: '10%',
-  },
-  particle5: {
-    width: 4,
-    height: 4,
-    top: '70%',
-    left: '5%',
-  },
-  particle6: {
-    width: 14,
-    height: 14,
-    top: '10%',
-    right: '25%',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',

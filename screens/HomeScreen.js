@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, Alert } from 'react-native';
+import { useBackgrounds } from '../contexts/BackgroundContext';
 import { useState, useEffect } from 'react';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useLaunchDate } from '../hooks/useApiMultiLang';
@@ -20,6 +21,7 @@ export default function HomeScreen() {
 
   // Hook de localización
   const { translations, isRTL } = useLocalization();
+  const { getBackgroundFor } = useBackgrounds();
 
   // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
@@ -131,30 +133,30 @@ export default function HomeScreen() {
       {/* Gradiente de fondo */}
       <View style={styles.backgroundGradient} />
       
-      {/* Efectos de partículas */}
-      <View style={styles.particlesContainer}>
-        {/* <View style={[styles.particle, styles.particle1]} /> */}
-        {/* <View style={[styles.particle, styles.particle2]} /> */}
-        {/* <View style={[styles.particle, styles.particle3]} /> */}
-        {/* <View style={[styles.particle, styles.particle4]} /> */}
-        {/* <View style={[styles.particle, styles.particle5]} /> */}
-        {/* <View style={[styles.particle, styles.particle6]} /> */}
+      {/* Imagen de fondo (desde asignación aleatoria del contexto) */}
+      {getBackgroundFor('Home') && (
+        <Image
+          source={getBackgroundFor('Home')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+      )}
+
+      {/* Lottie en la parte superior */}
+      <View pointerEvents="none" style={styles.topLottieContainer}>
+        <LottieView
+          source={require('../assets/animations/wave.json')}
+          autoPlay
+          loop
+          speed={1.5}
+          style={styles.topLottie}
+        />
       </View>
       
       {/* Contenido principal */}
       <View style={styles.content}>
         {/* Imagen de GTA VI */}
         <View style={styles.fixedLogoContainer}>
-          {/* Animación de Lottie detrás del logo */}
-          <View style={styles.lottieContainer}>
-            <LottieView
-              source={require('../assets/animations/wave.json')}
-              style={styles.lottieAnimation}
-              autoPlay
-              loop
-              speed={1.8}
-            />
-          </View>
           <Image 
             source={require('../assets/logo.png')}
             style={styles.logoImage}
@@ -216,7 +218,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 0, //Joke
   },
   backgroundGradient: {
     position: 'absolute',
@@ -224,55 +226,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0f0f23',
+    // backgroundColor: '#0f0f23',
   },
-  particlesContainer: {
+  backgroundImage: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  particle: {
-    position: 'absolute',
-    backgroundColor: 'rgba(255, 107, 53, 0.3)',
-    borderRadius: 50,
-  },
-  particle1: {
-    width: 8,
-    height: 8,
-    top: '20%',
-    left: '15%',
-  },
-  particle2: {
-    width: 12,
-    height: 12,
-    top: '60%',
-    right: '20%',
-  },
-  particle3: {
-    width: 6,
-    height: 6,
-    top: '80%',
-    left: '25%',
-  },
-  particle4: {
-    width: 10,
-    height: 10,
-    top: '30%',
-    right: '10%',
-  },
-  particle5: {
-    width: 8,
-    height: 8,
-    top: '30%',
-    left: '15%',
-  },
-  particle6: {
-    width: 14,
-    height: 14,
-    top: '10%',
-    right: '25%',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+    opacity: 0.25,
   },
   content: {
     flex: 1,
@@ -324,33 +289,50 @@ const styles = StyleSheet.create({
     top: 0
   },
   lottieAnimation: {
-    width: 500,
-    height: 500,
+    width: 600,
+    height: 600,
     opacity: 0.3,
-    top: 100
+    // top: -280
+  },
+  topLottieContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    zIndex: 0,
+  },
+  topLottie: {
+    width: 600,
+    height: 600,
+    opacity: 0.3,
+    bottom: 250,
   },
   logoImage: {
-    width: 270,
-    height: 270,
-    // borderRadius: 10,
+    width: 150,
+    height: 150,
+    right: 10,
   },
   daysContainer: {
     alignItems: 'center',
     marginBottom: 30,
   },
   daysNumber: {
-    fontSize: 120,
+    fontSize: 130,
     fontFamily: 'Poppins_700Bold',
     color: '#ff6b35',
     textShadowColor: 'rgba(255, 107, 53, 0.5)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
+    top: 40,
   },
   daysLabel: {
-    fontSize: 16,
+    fontSize: 22,
     color: '#fff',
     fontFamily: 'Poppins_600SemiBold',
-    letterSpacing: 2,
+    letterSpacing: 55,
   },
   timeContainer: {
     flexDirection: 'row',
@@ -389,22 +371,22 @@ const styles = StyleSheet.create({
   },
   fixedLogoContainer: {
     position: 'absolute',
-    top: '15%',
-    left: '50%',
-    transform: [{ translateX: -150 }],
+    top: '38%',
+    left: 0,
+    right: 0,
     zIndex: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dynamicContent: {
     position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -150 }],
+    top: '48%',
+    left: 0,
+    right: 0,
     zIndex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 300,
+    width: '100%',
   },
   loadingLottieAnimation: {
     width: 200,

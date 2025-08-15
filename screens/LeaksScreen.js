@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Linking, Image, Alert } from 'react-native';
+import { useBackgrounds } from '../contexts/BackgroundContext';
 import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
@@ -12,6 +13,7 @@ const { width: screenWidth } = Dimensions.get('window');
 export default function LeaksScreen({ navigation }) {
   // Hook de localización
   const { translations, isRTL, formatDate } = useLocalization();
+  const { getBackgroundFor } = useBackgrounds();
 
   // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
@@ -179,17 +181,14 @@ export default function LeaksScreen({ navigation }) {
       
       {/* Gradiente de fondo */}
       <View style={styles.backgroundGradient} />
-      
-      {/* Efectos de partículas */}
-      <View style={styles.particlesContainer}>
-        {/* <View style={[styles.particle, styles.particle1]} />
-        <View style={[styles.particle, styles.particle2]} />
-        <View style={[styles.particle, styles.particle3]} />
-        <View style={[styles.particle, styles.particle4]} />
-        <View style={[styles.particle, styles.particle5]} />
-        <View style={[styles.particle, styles.particle6]} /> */}
-      </View>
-      
+      {/* Imagen de fondo */}
+      {getBackgroundFor('Leaks') && (
+        <Image
+          source={getBackgroundFor('Leaks')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+      )}
       {/* Contenido principal */}
       <View style={styles.content}>
         {/* Header */}
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   },
   backgroundGradient: {
     position: 'absolute',
@@ -240,62 +239,26 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0f0f23',
+    // backgroundColor: '#0f0f23',
+    backgroundColor: '#000000',
     zIndex: 0,
   },
-  particlesContainer: {
+  backgroundImage: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
-  },
-  particle: {
-    position: 'absolute',
-    backgroundColor: 'rgba(255, 107, 53, 0.3)',
-    borderRadius: 50,
-  },
-  particle1: {
-    width: 8,
-    height: 8,
-    top: '20%',
-    left: '15%',
-  },
-  particle2: {
-    width: 12,
-    height: 12,
-    top: '60%',
-    right: '20%',
-  },
-  particle3: {
-    width: 8,
-    height: 8,
-    top: '90%',
-    left: '25%',
-  },
-  particle4: {
-    width: 10,
-    height: 10,
-    top: '14%',
-    left: '14%',
-  },
-  particle5: {
-    width: 6,
-    height: 6,
-    top: '16%',
-    left: '10%',
-  },
-  particle6: {
-    width: 15,
-    height: 15,
-    top: '6%',
-    right: '6%',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+    opacity: 0.25,
   },
   content: {
     flex: 1,
     zIndex: 2,
     paddingTop: 60,
+    paddingHorizontal: 20,
     // justifyContent: 'center',
   },
   loadingText: {
@@ -332,7 +295,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
-    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 0,
@@ -357,7 +320,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   leakCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     width: screenWidth - 40,
     height: '85%',
     alignSelf: 'flex-start',

@@ -181,14 +181,14 @@ const LanguageSelector = ({ visible, onClose, style }) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
     width: screenWidth - 40,
     maxHeight: screenHeight - 100,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#000000',
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#ff6b35',
