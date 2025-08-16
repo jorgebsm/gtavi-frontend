@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Statu
 import { Ionicons } from '@expo/vector-icons';
 // Removemos el import de fuentes que no existe
 import { useLocalization } from '../hooks/useLocalization';
-
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const NewsDetailScreen = ({ route, navigation }) => {
@@ -93,7 +92,7 @@ const NewsDetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#141414',
   },
   backgroundGradient: {
     position: 'absolute',
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#000000',
+    backgroundColor: '#141414',
   },
   header: {
     flexDirection: 'row',
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
     color: '#ff6b35',
   },
   contentContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#252525',
     borderRadius: 15,
     padding: 20,
     marginBottom: 30,

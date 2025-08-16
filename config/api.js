@@ -27,7 +27,7 @@ export const API_CONFIG = {
   },
   
   // Idiomas soportados
-  SUPPORTED_LANGUAGES: ['es', 'en', 'fr', 'ar', 'pl', 'pt'],
+  SUPPORTED_LANGUAGES: ['es', 'en', 'fr', 'ar', 'pl', 'pt', 'ru', 'it', 'ur', 'hi', 'th', 'de', 'fil'],
   
   // Idioma por defecto
   DEFAULT_LANGUAGE: 'es',

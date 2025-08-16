@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     width: 600,
     height: 600,
     opacity: 0.3,
-    bottom: 265,
+    bottom: 250,
   },
   logoImage: {
     width: 150,

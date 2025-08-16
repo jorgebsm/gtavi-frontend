@@ -78,6 +78,13 @@ const LanguageSelector = ({ visible, onClose, style }) => {
       'ar': '🇸🇦',
       'pl': '🇵🇱',
       'pt': '🇧🇷',
+      'ru': '🇷🇺',
+      'it': '🇮🇹',
+      'ur': '🇵🇰',
+      'hi': '🇮🇳',
+      'th': '🇹🇭',
+      'de': '🇩🇪',
+      'fil': '🇵🇭',
     };
     return flags[languageCode] || '🌐';
   };
@@ -188,7 +195,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: screenWidth - 40,
     maxHeight: screenHeight - 100,
-    backgroundColor: '#000000',
+    backgroundColor: '#141414',
     borderRadius: 20,
     borderWidth: 0,
     borderColor: '#ff6b35',
@@ -201,8 +208,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     // borderBottomColor: 'rgba(255, 107, 53, 0.3)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: '#252525',
+    backgroundColor: '#252525',
   },
   headerTitle: {
     fontSize: 20,
@@ -248,7 +255,7 @@ const styles = StyleSheet.create({
     color: '#ff6b35',
   },
   languagesList: {
-    maxHeight: 300,
+    maxHeight: 350,
   },
   languageItem: {
     flexDirection: 'row',
@@ -256,7 +263,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: '#252525',
   },
   selectedLanguageItem: {
     backgroundColor: 'rgba(255, 107, 53, 0.1)',
@@ -296,9 +303,9 @@ const styles = StyleSheet.create({
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: '#252525',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#252525',
   },
   footerText: {
     fontSize: 12,

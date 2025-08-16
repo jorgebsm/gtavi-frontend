@@ -4,6 +4,13 @@ import fr from './fr';
 import ar from './ar';
 import pl from './pl';
 import pt from './pt';
+import ru from './ru';
+import it from './it';
+import ur from './ur';
+import hi from './hi';
+import th from './th';
+import de from './de';
+import fil from './fil';
 
 export const translations = {
   es,
@@ -11,10 +18,17 @@ export const translations = {
   fr,
   ar,
   pl,
-  pt
+  pt,
+  ru,
+  it,
+  ur,
+  hi,
+  th,
+  de,
+  fil
 };
 
-export const supportedLanguages = ['es', 'en', 'fr', 'ar', 'pl', 'pt'];
+export const supportedLanguages = ['es', 'en', 'fr', 'ar', 'pl', 'pt', 'ru', 'it', 'ur', 'hi', 'th', 'de', 'fil'];
 
 export const languageNames = {
   es: 'Español',
@@ -22,7 +36,14 @@ export const languageNames = {
   fr: 'Français',
   ar: 'العربية',
   pl: 'Polski',
-  pt: 'Português'
+  pt: 'Português',
+  ru: 'Русский',
+  it: 'Italiano',
+  ur: 'اردو',
+  hi: 'हिंदी',
+  th: 'ไทย',
+  de: 'Deutsch',
+  fil: 'Filipino'
 };
 
 // Mapeo de regiones a idiomas
@@ -51,7 +72,12 @@ export const regionLanguageMapping = {
   'BR': 'pt', // Brasil
   'PT': 'pt', // Portugal
   'IL': 'ar', // Israel (preferimos árabe por región)
-  'TH': 'en', // Tailandia (inglés como fallback)
+  'TH': 'th', // Tailandia
+  'DE': 'de', // Alemania
+  'RU': 'ru', // Rusia
+  'IT': 'it', // Italia
+  'PH': 'fil', // Filipinas
+  'IN': 'hi', // India
   
   // Países árabes
   'SA': 'ar', // Arabia Saudita

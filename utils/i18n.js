@@ -38,14 +38,14 @@ export const detectDeviceLanguage = () => {
     // 3. Mapeos especiales para idiomas similares
     const languageFallbacks = {
       'he': 'ar', // Hebreo -> Árabe (ambos RTL y región similar)
-      'ur': 'ar', // Urdu -> Árabe (ambos RTL)
+      'ur': 'ur', // Urdu soportado
       'fa': 'ar', // Persa -> Árabe (ambos RTL)
       'ca': 'es', // Catalán -> Español
       'eu': 'es', // Euskera -> Español
       'gl': 'es', // Gallego -> Español
-      'it': 'es', // Italiano -> Español (idiomas latinos)
+      'it': 'it', // Italiano soportado
       'ro': 'es', // Rumano -> Español (idiomas latinos)
-      'de': 'en', // Alemán -> Inglés
+      'de': 'de', // Alemán soportado
       'nl': 'en', // Holandés -> Inglés
       'sv': 'en', // Sueco -> Inglés
       'no': 'en', // Noruego -> Inglés
@@ -55,7 +55,10 @@ export const detectDeviceLanguage = () => {
       'cs': 'pl', // Checo -> Polaco (región similar)
       'sk': 'pl', // Eslovaco -> Polaco (región similar)
       'uk': 'pl', // Ucraniano -> Polaco (región similar)
-      'ru': 'pl', // Ruso -> Polaco (región similar)
+      'ru': 'ru', // Ruso soportado
+      'hi': 'hi', // Hindi soportado
+      'th': 'th', // Tailandés soportado
+      'fil': 'fil', // Filipino soportado
     };
     
     if (languageFallbacks[languageCode]) {
@@ -139,7 +142,14 @@ export const formatDate = (date, options = {}) => {
     'fr': 'fr-FR',
     'ar': 'ar-SA',
     'pl': 'pl-PL',
-    'pt': 'pt-BR'
+    'pt': 'pt-BR',
+    'ru': 'ru-RU',
+    'it': 'it-IT',
+    'ur': 'ur-PK',
+    'hi': 'hi-IN',
+    'th': 'th-TH',
+    'de': 'de-DE',
+    'fil': 'fil-PH'
   };
   
   const locale = localeMap[currentLanguage] || 'es-ES';

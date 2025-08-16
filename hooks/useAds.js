@@ -28,7 +28,7 @@ export const useAds = () => {
       if (success) {
         isInitialized.current = true;
         setIsAdReady(true);
-        console.log('🚀 Hook de anuncios inicializado correctamente');
+        // console.log('🚀 Hook de anuncios inicializado correctamente');
       }
       
       return success;
@@ -66,7 +66,7 @@ export const useAds = () => {
   // Mostrar anuncio intersticial
   const showInterstitial = useCallback(async () => {
     if (!isAdReady) {
-      console.log('⚠️ Anuncio no está listo, cargando...');
+      // console.log('⚠️ Anuncio no está listo, cargando...');
       const loaded = await loadInterstitial();
       if (!loaded) return false;
     }
@@ -133,7 +133,7 @@ export const useAds = () => {
       totalCompleted: 0,
       lastAdTime: null,
     });
-    console.log('🔄 Contadores de anuncios reseteados en hook');
+    // console.log('🔄 Contadores de anuncios reseteados en hook');
   }, []);
 
   // Precargar anuncios
@@ -145,7 +145,7 @@ export const useAds = () => {
     // Precargar anuncio intersticial
     await loadInterstitial();
     
-    console.log('📥 Anuncios precargados');
+    // console.log('📥 Anuncios precargados');
   }, [initializeAds, loadInterstitial]);
 
   // Efecto para inicialización automática

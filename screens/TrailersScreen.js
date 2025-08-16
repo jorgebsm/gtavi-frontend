@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Dimensions, Linking, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Dimensions, Linking } from 'react-native';
 import { useBackgrounds } from '../contexts/BackgroundContext';
-import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 // Removemos el import de fuentes que no existe
@@ -24,44 +23,10 @@ export default function TrailersScreen() {
 
   // Obtener trailers desde el backend con soporte multi-idioma
   const { data: trailersResponse, loading, error } = useTrailers();
-
-  // Datos por defecto si no hay conexión
-  // const defaultTrailers = [
-  //   {
-  //     id: 2,
-  //     title: "Grand Theft Auto VI - Trailer Oficial #2",
-  //     date: "Diciembre 2024",
-  //     duration: "1:31",
-  //     description: "El segundo trailer oficial que muestra más detalles del mundo de Vice City, las actividades criminales y la vida en las calles de Florida.",
-  //     youtubeUrl: "https://www.youtube.com/watch?v=VQRLujxTm3c",
-  //     thumbnail: "https://img.youtube.com/vi/VQRLujxTm3c/maxresdefault.jpg"
-  //   },
-  //   {
-  //     id: 1,
-  //     title: "Grand Theft Auto VI - Trailer Oficial #1",
-  //     date: "Diciembre 2023",
-  //     duration: "1:31",
-  //     description: "El primer trailer oficial de Grand Theft Auto VI que revela Vice City y presenta a los protagonistas Lucia y Jason en un mundo lleno de crimen y oportunidades.",
-  //     youtubeUrl: "https://www.youtube.com/watch?v=QdBZY2fkU-0",
-  //     thumbnail: "https://img.youtube.com/vi/QdBZY2fkU-0/maxresdefault.jpg"
-  //   }
-  // ];
-
   const defaultTrailers = [];
 
   // Usar datos del backend o datos por defecto
   const trailersData = trailersResponse || defaultTrailers;
-
-  // Mostrar error si hay problemas con la API
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert(
-  //       'Error de conexión',
-  //       'No se pudo conectar con el servidor. Mostrando trailers por defecto.',
-  //       [{ text: 'OK' }]
-  //     );
-  //   }
-  // }, [error]);
 
   const handleTrailerPress = (youtubeUrl) => {
     Linking.openURL(youtubeUrl).catch(err => {

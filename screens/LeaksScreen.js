@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Linking, Image, Alert } from 'react-native';
 import { useBackgrounds } from '../contexts/BackgroundContext';
-import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 // Removemos el import de fuentes que no existe
@@ -24,45 +23,9 @@ export default function LeaksScreen({ navigation }) {
 
   // Obtener filtraciones desde el backend con soporte multiidioma
   const { data: leaksData, loading, error, currentLanguage } = useLeaks();
-
-  // Datos por defecto si no hay conexión
-  // const defaultLeaks = [
-  //   {
-  //     id: 1,
-  //     title: "Nuevos vehículos confirmados",
-  //     date: "Hace 1 día",
-  //     credibility: "Alta",
-  //     source: "Código fuente filtrado",
-  //     excerpt: "Filtración de código fuente revela nuevos vehículos incluyendo motos voladoras y barcos de alta velocidad con tecnología futurista.",
-  //     content: "Filtración de código fuente revela nuevos vehículos incluyendo motos voladoras y barcos de alta velocidad con tecnología futurista.",
-  //     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop"
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Mapa completo filtrado",
-  //     date: "Hace 3 días",
-  //     credibility: "Media",
-  //     source: "Desarrollador anónimo",
-  //     excerpt: "Un desarrollador anónimo ha compartido detalles del mapa completo de Vice City y sus alrededores con nuevas ubicaciones.",
-  //     content: "Un desarrollador anónimo ha compartido detalles del mapa completo de Vice City y sus alrededores con nuevas ubicaciones.",
-  //     image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=400&fit=crop"
-  //   }
-  // ];
   const defaultLeaks = [];
-
   // Usar datos del backend o datos por defecto
   const finalLeaksData = leaksData || defaultLeaks;
-
-  // Mostrar error si hay problemas con la API
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert(
-  //       'Error de conexión',
-  //       'No se pudo conectar con el servidor. Mostrando filtraciones por defecto.',
-  //       [{ text: 'OK' }]
-  //     );
-  //   }
-  // }, [error]);
 
   const getCredibilityColor = (credibility) => {
     // Normalizar la credibilidad para ser independiente del idioma

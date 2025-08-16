@@ -1,17 +1,13 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TikTokNavigator from './components/TikTokNavigator';
-import { useInitNotifications, initializeOneSignal, requestAndRegisterNotifications } from './services/notifications';
+// import { useInitNotifications, initializeOneSignal, requestAndRegisterNotifications } from './services/notifications';
 import Constants from 'expo-constants';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { LanguageProvider } from './contexts/LanguageContext';
-import LanguageTest from './components/LanguageTest'; // Descomenta para probar
-import SimpleTest from './components/SimpleTest'; // Prueba simple
 import { isOnboardingEnabled } from './config/featureFlags';
-import FEATURE_FLAGS from './config/featureFlags';
 import useOnboardingStatus from './hooks/useOnboardingStatus';
-import OnboardingNavigator from './components/onboarding/OnboardingNavigator';
-import OnboardingOverlay from './components/onboarding/OnboardingOverlay';
+import OnboardingOverlay from './components/OnboardingOverlay';
 import { BackgroundProvider } from './contexts/BackgroundContext';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,7 +16,7 @@ const isExpoGo = Constants.appOwnership === 'expo';
 export default function App() {
   // Estado para mostrar el resultado del registro de notificaciones
   const [notifStatus, setNotifStatus] = useState({ status: 'pending', message: '', playerId: '' });
-  const { isCompleted, canRePrompt, markCompleted, markPrompted, markRejected } = useOnboardingStatus();
+  const { isCompleted } = useOnboardingStatus();
   const onboardingEnabled = isOnboardingEnabled();
   const [overlayState, setOverlayState] = useState({ index: 0, total: 0 });
   const [uiReady, setUiReady] = useState(false);
@@ -51,32 +47,21 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
         <BackgroundProvider>
-        {/* Banner visual de estado de notificaciones */}
-        {/* <View style={styles.banner}>
-          {notifStatus.status === 'pending' && <Text style={styles.text}>🔄 Registrando notificaciones...</Text>}
-          {notifStatus.status === 'success' && <Text style={styles.text}>✅ Notificaciones registradas. PlayerID: {notifStatus.playerId}</Text>}
-          {notifStatus.status === 'error' && <Text style={styles.text}>❌ Error: {notifStatus.message}</Text>}
-        </View> */}
-        
-        {/* Para probar la internacionalización, descomenta la línea siguiente y comenta TikTokNavigator */}
-        {/* <LanguageTest /> */}
-        {/* <SimpleTest /> */}
-        {/* Mostrar navegación principal siempre; overlay solo como guía visual y nunca en la última página */}
-        <TikTokNavigator
-          onIndexChange={(i, total) => setOverlayState({ index: i, total })}
-          onTotalPages={(total) => setOverlayState((s) => ({ ...s, total }))}
-        />
-        <OnboardingOverlay
-          visible={
-            uiReady && onboardingEnabled &&
-            !isCompleted &&
-            overlayState.total > 0 &&
-            overlayState.index < overlayState.total - 1
-          }
-          currentIndex={overlayState.index}
-          total={overlayState.total}
-          isFinal={false}
-        />
+          <TikTokNavigator
+            onIndexChange={(i, total) => setOverlayState({ index: i, total })}
+            onTotalPages={(total) => setOverlayState((s) => ({ ...s, total }))}
+          />
+          <OnboardingOverlay
+            visible={
+              uiReady && onboardingEnabled &&
+              !isCompleted &&
+              overlayState.total > 0 &&
+              overlayState.index < overlayState.total - 1
+            }
+            currentIndex={overlayState.index}
+            total={overlayState.total}
+            isFinal={false}
+          />
         </BackgroundProvider>
       </LanguageProvider>
     </GestureHandlerRootView>

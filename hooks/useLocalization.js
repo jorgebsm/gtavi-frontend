@@ -32,7 +32,14 @@ export const useLocalization = () => {
       'fr': 'Français',
       'ar': 'العربية',
       'pl': 'Polski',
-      'pt': 'Português'
+      'pt': 'Português',
+      'ru': 'Русский',
+      'it': 'Italiano',
+      'ur': 'اردو',
+      'hi': 'हिंदी',
+      'th': 'ไทย',
+      'de': 'Deutsch',
+      'fil': 'Filipino'
     }[currentLanguage] || 'Español'
   };
 

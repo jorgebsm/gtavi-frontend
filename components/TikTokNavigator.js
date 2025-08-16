@@ -69,13 +69,13 @@ function MainNavigator({ navigation, onIndexChange }) {
   // Manejar finalización del anuncio
   const handleAdComplete = () => {
     setShowAd(false);
-    console.log('✅ Anuncio completado');
+    // console.log('✅ Anuncio completado');
   };
 
   // Manejar salto del anuncio
   const handleSkipAd = () => {
     setShowAd(false);
-    console.log('⏭️ Anuncio saltado');
+    // console.log('⏭️ Anuncio saltado');
   };
 
   const renderScreen = (screen, index) => {
@@ -140,7 +140,7 @@ export default function TikTokNavigator({ onIndexChange, onTotalPages }) {
     const initAds = async () => {
       try {
         await adService.initialize();
-        console.log('🚀 Servicio de anuncios inicializado en TikTokNavigator');
+        // console.log('🚀 Servicio de anuncios inicializado en TikTokNavigator');
       } catch (error) {
         console.error('❌ Error inicializando anuncios:', error);
       }

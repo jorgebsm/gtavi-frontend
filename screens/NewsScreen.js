@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Linking, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { useBackgrounds } from '../contexts/BackgroundContext';
-import { useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 // Removemos el import de fuentes que no existe
@@ -24,43 +23,11 @@ export default function NewsScreen({ navigation }) {
 
   // Obtener noticias desde el backend con soporte multi-idioma
   const { data: newsResponse, loading, error } = useNews();
-
-  // Datos por defecto si no hay conexión
-  // const defaultNews = [
-  //   {
-  //     id: 1,
-  //     title: "GTA VI: Rockstar lanza el segundo trailer oficial",
-  //     date: "Diciembre 2024",
-  //     excerpt: "Rockstar Games ha lanzado el segundo trailer oficial de Grand Theft Auto VI, mostrando más detalles del mundo de Vice City y las actividades criminales. El trailer confirma que el juego llegará en 2025.",
-  //     source: "Rockstar Games",
-  //     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=400&fit=crop"
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "GTA VI confirmado para 2025: Fecha de lanzamiento oficial",
-  //     date: "Diciembre 2024",
-  //     excerpt: "Take-Two Interactive ha confirmado oficialmente que Grand Theft Auto VI se lanzará en 2025. El CEO Strauss Zelnick confirmó la fecha durante una conferencia de inversores, generando gran expectativa en la comunidad gaming.",
-  //     source: "Take-Two Interactive",
-  //     image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=400&fit=crop"
-  //   }
-  // ];
-
   const defaultNews = [];
 
   // Usar datos del backend o datos por defecto
   const newsData = newsResponse || defaultNews;
-
-  // Mostrar error si hay problemas con la API
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert(
-  //       'Error de conexión',
-  //       'No se pudo conectar con el servidor. Mostrando noticias por defecto.',
-  //       [{ text: 'OK' }]
-  //     );
-  //   }
-  // }, [error]);
-
+  
   const handleNewsPress = (news) => {
     // Navegar a la pantalla de detalle de la noticia
     navigation.navigate('NewsDetail', { news });

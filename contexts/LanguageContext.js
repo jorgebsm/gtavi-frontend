@@ -76,7 +76,7 @@ export const LanguageProvider = ({ children }) => {
       code: languageCode,
       name: languageNames[languageCode] || languageCode,
       isSelected: languageCode === selectedLanguage,
-      isRTL: languageCode === 'ar' // Solo árabe es RTL
+      isRTL: ['ar', 'ur'].includes(languageCode) // RTL: árabe y urdu
     };
   };
 
@@ -99,7 +99,7 @@ export const LanguageProvider = ({ children }) => {
     currentLanguageInfo: getLanguageInfo(selectedLanguage),
     
     // Utilidades
-    isRTL: selectedLanguage === 'ar',
+    isRTL: ['ar', 'ur'].includes(selectedLanguage),
     supportedLanguages
   };
 

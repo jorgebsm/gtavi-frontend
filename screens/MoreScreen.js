@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Linking, Share, StyleSheet, Dimensions, Animated, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Linking, Share, StyleSheet, Dimensions, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 // Removemos el import de fuentes que no existe
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import BackendConnectionTest from '../components/BackendConnectionTest';
 import { useLocalization } from '../hooks/useLocalization';
 import { useLanguage } from '../contexts/LanguageContext';
 import LottieView from 'lottie-react-native';
@@ -196,24 +195,30 @@ const MoreScreen = () => {
                   {t('ob_cta_reject')}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.alertAccept}
-                onPress={async () => {
-                  await markPrompted();
-                  setNotifInitRequested(true);
-                  await markCompleted();
-                }}
-              >
-                <Text style={[styles.alertAcceptText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
-                  {t('ob_cta_enable')}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.acceptWrapper}>
+                <TouchableOpacity
+                  style={styles.alertAccept}
+                  onPress={async () => {
+                    await markPrompted();
+                    setNotifInitRequested(true);
+                    await markCompleted();
+                  }}
+                >
+                  <Text style={[styles.alertAcceptText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
+                    {t('ob_cta_enable')}
+                  </Text>
+                </TouchableOpacity>
+                <LottieView
+                  source={require('../assets/animations/doubletap.json')}
+                  autoPlay
+                  loop
+                  style={[styles.doubleTapLottie, styles.mirrored]}
+                  pointerEvents="none"
+                />
+              </View>
             </View>
           </View>
         )}
-
-        {/* Componente de prueba de conexión */}
-        {/* <BackendConnectionTest /> */}
 
         {/* Información adicional */}
         <View style={styles.footer}>
@@ -415,6 +420,9 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 8,
   },
+  acceptWrapper: {
+    position: 'relative',
+  },
   alertReject: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     paddingHorizontal: 18,
@@ -432,6 +440,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     marginTop: 4,
+  },
+  doubleTapLottie: {
+    position: 'absolute',
+    right: -40,
+    bottom: -55,
+    width: 80,
+    height: 80,
+  },
+  mirrored: {
+    transform: [{ scaleX: -1 }, { rotate: '-45deg' }],
   },
   alertAcceptText: {
     color: '#fff',

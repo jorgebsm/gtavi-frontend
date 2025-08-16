@@ -5,13 +5,7 @@ import LottieView from 'lottie-react-native';
 const { width, height } = Dimensions.get('window');
 
 const OnboardingOverlay = ({
-  visible,
-  currentIndex,
-  total,
-  onEnableNotifications,
-  onSkip,
-  onReject,
-  isFinal,
+  visible
 }) => {
   const lottieRef = useRef(null);
   const hasStartedRef = useRef(false);
@@ -41,7 +35,7 @@ const OnboardingOverlay = ({
       <View pointerEvents="box-none" style={styles.content}>
         <View pointerEvents="none" style={styles.leftBlock}>
           <LottieView
-            source={require('../../assets/animations/scroll.json')}
+            source={require('../assets/animations/scroll.json')}
             autoPlay={false}
             loop
             style={styles.lottie}
