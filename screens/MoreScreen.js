@@ -9,7 +9,7 @@ import { useLocalization } from '../hooks/useLocalization';
 import { useLanguage } from '../contexts/LanguageContext';
 import LottieView from 'lottie-react-native';
 import useOnboardingStatus from '../hooks/useOnboardingStatus';
-import { requestAndRegisterNotifications } from '../services/notifications';
+import { useInitNotifications } from '../services/notifications';
 import LanguageSelector from '../components/LanguageSelector';
 import { useBackgrounds } from '../contexts/BackgroundContext';
 
@@ -37,6 +37,12 @@ const MoreScreen = () => {
   const { isCompleted, markCompleted, markPrompted, markRejected } = useOnboardingStatus();
 
   // No inicializar OneSignal aquí. Se hará solo tras consentimiento.
+  const [notifInitRequested, setNotifInitRequested] = useState(false);
+
+  const NotificationsInitRunner = () => {
+    useInitNotifications();
+    return null;
+  };
 
   const handleRate = () => {
     // Redirigir a la Play Store (reemplazar con el ID real de la app)
@@ -95,7 +101,7 @@ const MoreScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.extrasTitle}</Text>
-          <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>
+          {isCompleted ? (<Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>) : null}
         </View>
         
         {isCompleted ? (
@@ -158,9 +164,18 @@ const MoreScreen = () => {
           </View>
         ) : (
           <View style={styles.alertCard}>
-            <Text style={[styles.alertTitle, fontsLoaded && { fontFamily: 'Poppins_700Bold' }]}>
-              {t('ob_reminders_title')}
-            </Text>
+            <View style={styles.alertHeader}>
+              <TouchableOpacity
+                style={styles.alertLangButton}
+                onPress={handleLanguageSelect}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="language" size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+              <Text style={[styles.alertTitle, fontsLoaded && { fontFamily: 'Poppins_700Bold' }]}>
+                {t('ob_reminders_title')}
+              </Text>
+            </View>
             <Text style={[styles.alertSubtitle, fontsLoaded && { fontFamily: 'Poppins_400Regular' }]}>
               {t('ob_reminders_sub')}
             </Text>
@@ -185,9 +200,8 @@ const MoreScreen = () => {
                 style={styles.alertAccept}
                 onPress={async () => {
                   await markPrompted();
-                  const granted = await requestAndRegisterNotifications();
+                  setNotifInitRequested(true);
                   await markCompleted();
-                  if (!granted) await markRejected();
                 }}
               >
                 <Text style={[styles.alertAcceptText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
@@ -206,6 +220,8 @@ const MoreScreen = () => {
           <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.1.0</Text>
         </View>
       </ScrollView>
+
+      {notifInitRequested && <NotificationsInitRunner />}
 
       {/* Selector de Idioma */}
       <LanguageSelector
@@ -356,11 +372,32 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
   },
+  alertHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  alertLangButton: {
+    marginRight: 8,
+    marginLeft: -10,
+    width: 40,
+    height: 40,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    marginBottom: 12,
+  },
   alertTitle: {
     color: '#fff',
-    fontSize: 23,
+    fontSize: 21,
     textAlign: 'center',
     marginBottom: 12,
+    // marginTop: 10,
   },
   alertSubtitle: {
     color: 'rgba(255,255,255,0.9)',

@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     maxHeight: screenHeight - 100,
     backgroundColor: '#000000',
     borderRadius: 20,
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: '#ff6b35',
     overflow: 'hidden',
   },
@@ -200,7 +200,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 107, 53, 0.3)',
+    // borderBottomColor: 'rgba(255, 107, 53, 0.3)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   headerTitle: {
     fontSize: 20,
@@ -296,6 +298,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   footerText: {
     fontSize: 12,

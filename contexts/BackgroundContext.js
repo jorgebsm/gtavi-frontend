@@ -14,7 +14,7 @@ const BACKGROUND_SOURCES = {
 };
 
 const BACKGROUND_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const HOME_ALLOWED = [1, 2, 4, 5, 6, 7, 9];
+const HOME_ALLOWED = [1, 4, 7, 9];
 
 const SCREEN_NAMES = ['Home', 'Trailers', 'News', 'Leaks', 'Sales', 'More'];
 
