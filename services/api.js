@@ -137,3 +137,8 @@ export const testNotificationsStatus = async () => {
 };
 
 export default api; 
+
+// Configurations service
+export const configurationsService = {
+  getByKey: (key) => api.get(`/configurations/${key}`)
+};

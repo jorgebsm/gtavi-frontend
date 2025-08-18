@@ -5,7 +5,16 @@ export const FEATURE_FLAGS = {
   ONBOARDING_REPROMPT_DAYS: 7
 };
 
-export const isOnboardingEnabled = () => FEATURE_FLAGS.ONBOARDING_ENABLED === true;
+let remoteOnboardingEnabled = null;
+
+export const isOnboardingEnabled = () => {
+  if (remoteOnboardingEnabled === null) return FEATURE_FLAGS.ONBOARDING_ENABLED === true;
+  return remoteOnboardingEnabled === true;
+};
+
+export const setRemoteOnboardingEnabled = (value) => {
+  remoteOnboardingEnabled = value;
+};
 
 export default FEATURE_FLAGS;
 

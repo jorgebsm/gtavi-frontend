@@ -1,11 +1,14 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import TikTokNavigator from './components/TikTokNavigator';
-// import { useInitNotifications, initializeOneSignal, requestAndRegisterNotifications } from './services/notifications';
+import { requestAndRegisterNotifications, initializeOneSignal } from './services/notifications';
+import { OneSignal } from 'react-native-onesignal';
 import Constants from 'expo-constants';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet } from 'react-native';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { isOnboardingEnabled } from './config/featureFlags';
+import { isOnboardingEnabled, setRemoteOnboardingEnabled } from './config/featureFlags';
+import { configurationsService } from './services/api';
 import useOnboardingStatus from './hooks/useOnboardingStatus';
 import OnboardingOverlay from './components/OnboardingOverlay';
 import { BackgroundProvider } from './contexts/BackgroundContext';
@@ -16,10 +19,12 @@ const isExpoGo = Constants.appOwnership === 'expo';
 export default function App() {
   // Estado para mostrar el resultado del registro de notificaciones
   const [notifStatus, setNotifStatus] = useState({ status: 'pending', message: '', playerId: '' });
-  const { isCompleted } = useOnboardingStatus();
+  const { isCompleted, markCompleted } = useOnboardingStatus();
   const onboardingEnabled = isOnboardingEnabled();
   const [overlayState, setOverlayState] = useState({ index: 0, total: 0 });
   const [uiReady, setUiReady] = useState(false);
+  const [configLoaded, setConfigLoaded] = useState(false);
+  const [skipOnboarding, setSkipOnboarding] = useState(false);
 
   // Estabilizar render (evitar warning de React con GestureHandler)
   useEffect(() => {
@@ -27,21 +32,45 @@ export default function App() {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // useEffect(() => {
-  //   const resetOnboarding = async () => {
-  //     await AsyncStorage.multiRemove([
-  //       '@gtavi_onboarding_completed',
-  //       '@gtavi_notifs_prompted_at',
-  //       '@gtavi_notifs_rejected_at',
-  //     ]);
-  //     console.log('Onboarding storage cleared');
-  //   };
-  //   if (__DEV__) resetOnboarding();
-  // }, []);
-  
+  // Cargar ONBOARDING_ENABLED desde backend
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await configurationsService.getByKey('onboarding_enabled');
+        const enabled = res?.data?.data?.value;
+        if (typeof enabled === 'boolean') setRemoteOnboardingEnabled(enabled);
+      } catch (_) {}
+      finally { setConfigLoaded(true); }
+    })();
+  }, []);
 
-  // Flujo legacy: solo si el onboarding está deshabilitado
-  // No inicializar automáticamente: gating 100% por consentimiento
+  // Solicitar notificaciones con flujo explícito cuando el onboarding está deshabilitado
+  const requestedNotifsRef = useRef(false);
+  useEffect(() => {
+    if (configLoaded && !onboardingEnabled && !requestedNotifsRef.current && !isExpoGo) {
+      requestedNotifsRef.current = true;
+      requestAndRegisterNotifications(setNotifStatus);
+    }
+  }, [configLoaded, onboardingEnabled]);
+
+  // Si el onboarding está habilitado, pero el dispositivo ya tiene notificaciones activas (playerId u optedIn), saltar onboarding
+  useEffect(() => {
+    (async () => {
+      if (!configLoaded || !onboardingEnabled || isExpoGo) return;
+      try {
+        initializeOneSignal();
+        const sub = await OneSignal.User.pushSubscription;
+        const hasId = !!sub?.id;
+        const optedIn = sub?.optedIn === true;
+        const persisted = (await AsyncStorage.getItem('@gtavi_notifs_registered')) === 'true';
+        if (hasId || optedIn || persisted) {
+          setSkipOnboarding(true);
+          try { await AsyncStorage.setItem('@gtavi_notifs_registered', 'true'); } catch(_) {}
+          try { await markCompleted(); } catch(_) {}
+        }
+      } catch (_) {}
+    })();
+  }, [configLoaded, onboardingEnabled]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -53,7 +82,7 @@ export default function App() {
           />
           <OnboardingOverlay
             visible={
-              uiReady && onboardingEnabled &&
+              uiReady && configLoaded && onboardingEnabled && !skipOnboarding &&
               !isCompleted &&
               overlayState.total > 0 &&
               overlayState.index < overlayState.total - 1

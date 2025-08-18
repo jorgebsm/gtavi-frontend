@@ -20,7 +20,13 @@ const OnboardingOverlay = ({
             try { lottieRef.current?.play(); hasStartedRef.current = true; } catch (_) {}
           });
         } catch (_) {}
-      }, 5000);
+      }, 4000);
+    } else if (!visible && lottieRef.current) {
+      try {
+        // Detener y reiniciar para evitar flashes si cambia el flag remoto
+        lottieRef.current?.reset?.();
+        hasStartedRef.current = false;
+      } catch (_) {}
     }
     return () => {
       if (timer) clearTimeout(timer);

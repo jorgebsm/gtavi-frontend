@@ -9,6 +9,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import LottieView from 'lottie-react-native';
 import useOnboardingStatus from '../hooks/useOnboardingStatus';
 import { useInitNotifications } from '../services/notifications';
+import { isOnboardingEnabled } from '../config/featureFlags';
 import LanguageSelector from '../components/LanguageSelector';
 import { useBackgrounds } from '../contexts/BackgroundContext';
 
@@ -34,6 +35,7 @@ const MoreScreen = () => {
 
   // Estado de onboarding (para saber si ya decidió y ocultar tarjeta)
   const { isCompleted, markCompleted, markPrompted, markRejected } = useOnboardingStatus();
+  const onboardingEnabled = isOnboardingEnabled();
 
   // No inicializar OneSignal aquí. Se hará solo tras consentimiento.
   const [notifInitRequested, setNotifInitRequested] = useState(false);
@@ -100,10 +102,12 @@ const MoreScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.extrasTitle}</Text>
-          {isCompleted ? (<Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>) : null}
+          {(isCompleted || !onboardingEnabled) ? (
+            <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>
+          ) : null}
         </View>
         
-        {isCompleted ? (
+        {(isCompleted || !onboardingEnabled) ? (
           <View style={styles.buttonsContainer}>
             {/* Botón Califícanos */}
             <TouchableOpacity 
@@ -161,7 +165,7 @@ const MoreScreen = () => {
               </View>
             </TouchableOpacity>
           </View>
-        ) : (
+        ) : onboardingEnabled ? (
           <View style={styles.alertCard}>
             <View style={styles.alertHeader}>
               <TouchableOpacity
@@ -195,11 +199,12 @@ const MoreScreen = () => {
                   {t('ob_cta_reject')}
                 </Text>
               </TouchableOpacity>
-              <View style={styles.acceptWrapper}>
+              <View style={styles.acceptWrapper} pointerEvents="box-none">
                 <TouchableOpacity
                   style={styles.alertAccept}
                   onPress={async () => {
                     await markPrompted();
+                    // El usuario expresa intención → permitimos intentar solicitar permisos una vez
                     setNotifInitRequested(true);
                     await markCompleted();
                   }}
@@ -208,17 +213,18 @@ const MoreScreen = () => {
                     {t('ob_cta_enable')}
                   </Text>
                 </TouchableOpacity>
-                <LottieView
-                  source={require('../assets/animations/doubletap.json')}
-                  autoPlay
-                  loop
-                  style={[styles.doubleTapLottie, styles.mirrored]}
-                  pointerEvents="none"
-                />
+                <View pointerEvents="none" style={styles.doubleTapContainer}>
+                  <LottieView
+                    source={require('../assets/animations/doubletap.json')}
+                    autoPlay
+                    loop
+                    style={[styles.doubleTapLottie, styles.mirrored]}
+                  />
+                </View>
               </View>
             </View>
           </View>
-        )}
+        ) : null}
 
         {/* Información adicional */}
         <View style={styles.footer}>
@@ -423,6 +429,13 @@ const styles = StyleSheet.create({
   acceptWrapper: {
     position: 'relative',
   },
+  doubleTapContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
   alertReject: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     paddingHorizontal: 18,
@@ -444,7 +457,7 @@ const styles = StyleSheet.create({
   doubleTapLottie: {
     position: 'absolute',
     right: -40,
-    bottom: -55,
+    bottom: -100,
     width: 80,
     height: 80,
   },
