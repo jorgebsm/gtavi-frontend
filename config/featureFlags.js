@@ -1,7 +1,7 @@
 // Feature flags centralizados
 // Cambia ONBOARDING_ENABLED a true para activar el onboarding
 export const FEATURE_FLAGS = {
-  ONBOARDING_ENABLED: true,
+  ONBOARDING_ENABLED: false,
   ONBOARDING_REPROMPT_DAYS: 7
 };
 

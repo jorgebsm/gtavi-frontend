@@ -12,7 +12,7 @@ import LeaksDetailScreen from '../screens/LeaksDetailScreen';
 import InterstitialAdScreen from './InterstitialAdScreen';
 import adService from '../services/adService';
 
-const { height: screenHeight } = Dimensions.get('window');
+const { height: initialWindowHeight } = Dimensions.get('window');
 
 const Stack = createStackNavigator();
 
@@ -31,10 +31,11 @@ function MainNavigator({ navigation, onIndexChange }) {
   const [adConfig, setAdConfig] = useState({});
   const scrollViewRef = useRef(null);
   const previousIndex = useRef(0);
+  const [pageHeight, setPageHeight] = useState(initialWindowHeight);
 
   const handleScroll = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    const index = Math.round(offsetY / screenHeight);
+    const index = Math.round(offsetY / pageHeight);
     if (index !== currentIndex) {
       previousIndex.current = currentIndex;
       setCurrentIndex(index);
@@ -81,25 +82,26 @@ function MainNavigator({ navigation, onIndexChange }) {
   const renderScreen = (screen, index) => {
     const ScreenComponent = screen.component;
     return (
-      <View key={screen.id} style={styles.screenContainer}>
+      <View key={screen.id} style={[styles.screenContainer, { height: pageHeight }]}>
         <ScreenComponent navigation={navigation} />
       </View>
     );
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { height: pageHeight * screens.length }]}
         showsVerticalScrollIndicator={false}
         pagingEnabled={true}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         decelerationRate="fast"
-        snapToInterval={screenHeight}
+        snapToInterval={pageHeight}
         snapToAlignment="start"
+        removeClippedSubviews={true}
       >
         {screens.map((screen, index) => renderScreen(screen, index))}
       </ScrollView>
@@ -179,10 +181,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    height: screenHeight * screens.length,
+    // height set dynamically
   },
   screenContainer: {
-    height: screenHeight,
+    overflow: 'hidden',
+    backgroundColor: '#000000',
   },
   pageIndicators: {
     position: 'absolute',

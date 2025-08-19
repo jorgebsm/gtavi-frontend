@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, Alert, Dimensions } from 'react-native';
 import { useBackgrounds } from '../contexts/BackgroundContext';
 import { useState, useEffect } from 'react';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
@@ -8,6 +8,9 @@ import { useLocalization } from '../hooks/useLocalization';
 import LottieView from 'lottie-react-native';
 
 export default function HomeScreen() {
+  const { height: screenHeight } = Dimensions.get('window');
+  const isSmall = screenHeight < 730;
+  const START_OFFSET = Math.round(screenHeight * (isSmall ? 0.26 : 0.24));
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -116,13 +119,13 @@ export default function HomeScreen() {
   // }, [error]);
 
   // Mostrar loading mientras se cargan las fuentes
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Cargando...</Text>
-      </View>
-    );
-  }
+  // if (!fontsLoaded) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <Text style={styles.loadingText}>Cargando...</Text>
+  //     </View>
+  //   );
+  // }
 
   // No necesitamos verificar fuentes
 
@@ -143,20 +146,20 @@ export default function HomeScreen() {
       )}
 
       {/* Lottie en la parte superior */}
-      <View pointerEvents="none" style={styles.topLottieContainer}>
+      <View pointerEvents="none" style={[styles.topLottieContainer, isSmall && styles.topLottieContainerSmall]}>
         <LottieView
           source={require('../assets/animations/wave.json')}
           autoPlay
           loop
           speed={1.5}
-          style={styles.topLottie}
+          style={[styles.topLottie, isSmall && styles.topLottieSmall]}
         />
       </View>
-      
+
       {/* Contenido principal */}
-      <View style={styles.content}>
+      <View style={[styles.content, isSmall && styles.contentSmall, { paddingTop: START_OFFSET }]}>
         {/* Imagen de GTA VI */}
-        <View style={styles.fixedLogoContainer}>
+        <View style={[styles.fixedLogoContainer, isSmall && styles.fixedLogoContainerSmall]}>
           <Image 
             source={require('../assets/logo.png')}
             style={styles.logoImage}
@@ -165,7 +168,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Contenido dinámico para loading y countdown */}
-        <View style={styles.dynamicContent}>
+        <View style={[styles.dynamicContent, isSmall && styles.dynamicContentSmall]}>
           {isLoading ? (
             // Animación de loading con transición
             <LottieView 
@@ -177,27 +180,27 @@ export default function HomeScreen() {
             />
           ) : (
             // Countdown con transición suave
-            <View style={[styles.countdownContainer, { opacity: showCountdown ? 1 : 0 }]}>
+            <View style={[styles.countdownContainer, isSmall && styles.countdownContainerSmall, { opacity: showCountdown ? 1 : 0 }]}>
               {/* Contador de días */}
               <View style={styles.daysContainer}>
-                <Text style={styles.daysNumber}>{timeLeft.days}</Text>
-                <Text style={[styles.daysLabel, isRTL && styles.rtlText]}>{translations.days}</Text>
+                <Text style={[styles.daysNumber, isSmall && styles.daysNumberSmall]}>{timeLeft.days}</Text>
+                <Text style={[styles.daysLabel, isSmall && styles.daysLabelSmall, isRTL && styles.rtlText]}>{translations.days}</Text>
               </View>
 
               {/* Contador de tiempo */}
               <View style={[styles.timeContainer, isRTL && styles.rtlContainer]}>
                 <View style={styles.timeUnit}>
-                  <Text style={styles.timeNumber}>{String(timeLeft.hours).padStart(2, '0')}</Text>
+                  <Text style={[styles.timeNumber, isSmall && styles.timeNumberSmall]}>{String(timeLeft.hours).padStart(2, '0')}</Text>
                   <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.hours}</Text>
                 </View>
                 <Text style={styles.timeSeparator}>:</Text>
                 <View style={styles.timeUnit}>
-                  <Text style={styles.timeNumber}>{String(timeLeft.minutes).padStart(2, '0')}</Text>
+                  <Text style={[styles.timeNumber, isSmall && styles.timeNumberSmall]}>{String(timeLeft.minutes).padStart(2, '0')}</Text>
                   <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.minutes}</Text>
                 </View>
                 <Text style={styles.timeSeparator}>:</Text>
                 <View style={styles.timeUnit}>
-                  <Text style={styles.timeNumber}>{String(timeLeft.seconds).padStart(2, '0')}</Text>
+                  <Text style={[styles.timeNumber, isSmall && styles.timeNumberSmall]}>{String(timeLeft.seconds).padStart(2, '0')}</Text>
                   <Text style={[styles.timeLabel, isRTL && styles.rtlText]}>{translations.seconds}</Text>
                 </View>
               </View>
@@ -219,6 +222,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 0, //Joke
+    overflow: 'hidden',
   },
   backgroundGradient: {
     position: 'absolute',
@@ -304,11 +308,19 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     zIndex: 0,
   },
+  topLottieContainerSmall: {
+    height: 160,
+  },
   topLottie: {
     width: 600,
     height: 600,
     opacity: 0.3,
     bottom: 250,
+  },
+  topLottieSmall: {
+    width: 500,
+    height: 500,
+    bottom: 200,
   },
   logoImage: {
     width: 150,
@@ -317,21 +329,28 @@ const styles = StyleSheet.create({
   },
   daysContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 16,
   },
   daysNumber: {
-    fontSize: 130,
+    fontSize: 140,
     fontFamily: 'Poppins_700Bold',
     color: '#ff6b35',
     textShadowColor: 'rgba(255, 107, 53, 0.5)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
-    top: 40,
+    marginBottom: -50,
+  },
+  daysNumberSmall: {
+    fontSize: 140,
+    marginBottom: -50,
   },
   daysLabel: {
     fontSize: 22,
     color: '#fff',
     fontFamily: 'Poppins_600SemiBold',
+    letterSpacing: 55,
+  },
+  daysLabelSmall: {
     letterSpacing: 55,
   },
   timeContainer: {
@@ -348,6 +367,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     color: '#fff',
     marginBottom: 5,
+  },
+  timeNumberSmall: {
+    fontSize: 28,
   },
   timeLabel: {
     fontSize: 10,
@@ -370,33 +392,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   fixedLogoContainer: {
-    position: 'absolute',
-    top: '38%',
-    left: 0,
-    right: 0,
-    zIndex: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 0,
+    marginBottom: -16,
+    zIndex: 2,
+    transform: [{ translateY: 90 }]
+  },
+  fixedLogoContainerSmall: {
+    marginTop: 0,
+    marginBottom: 4,
+    transform: [{ translateY: 60 }]
   },
   dynamicContent: {
-    position: 'absolute',
-    top: '48%',
-    left: 0,
-    right: 0,
-    zIndex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    marginTop: 75,
+  },
+  dynamicContentSmall: {
+    marginTop: 25,
   },
   loadingLottieAnimation: {
     width: 200,
     height: 200,
     opacity: 1,
-    top: 100
+    marginTop: 80,
   },
   countdownContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'opacity 0.3s ease-in-out',
+  },
+  countdownContainerSmall: {
+    paddingBottom: 8,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    width: '100%',
+    zIndex: 1,
+    paddingBottom: 24,
+  },
+  contentSmall: {
+    paddingBottom: 16,
   },
 }); 

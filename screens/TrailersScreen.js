@@ -13,6 +13,10 @@ export default function TrailersScreen() {
   // Hook de localización
   const { translations, isRTL, formatDate } = useLocalization();
   const { getBackgroundFor } = useBackgrounds();
+  const { height: screenHeight } = Dimensions.get('window');
+  const isSmall = screenHeight < 730;
+  const CARD_HEIGHT = Math.round(screenHeight * (isSmall ? 0.65 : 0.70));
+  const THUMB_HEIGHT = isSmall ? Math.round(screenHeight * 0.36) : 410;
 
   // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
@@ -51,7 +55,7 @@ export default function TrailersScreen() {
     return (
       <View style={styles.trailerContainer}>
         <TouchableOpacity 
-          style={styles.trailerCard}
+          style={[styles.trailerCard, { height: CARD_HEIGHT }]}
           onPress={() => handleTrailerPress(item.youtubeUrl)}
           activeOpacity={0.8}
         >
@@ -59,7 +63,7 @@ export default function TrailersScreen() {
           <View style={styles.thumbnailContainer}>
             <Image 
               source={{ uri: item.thumbnail }} 
-              style={styles.thumbnail}
+              style={[styles.thumbnail, { height: THUMB_HEIGHT }]}
               resizeMode="cover"
             />
             <View style={styles.playOverlay}>
@@ -105,7 +109,7 @@ export default function TrailersScreen() {
         />
       )}
       {/* Contenido principal */}
-      <View style={styles.content}>
+      <View style={[styles.content, isSmall && styles.contentSmall]}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.trailerTitle}</Text>
@@ -174,6 +178,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     // justifyContent: 'center',
   },
+  contentSmall: {
+    paddingTop: 40,
+  },
   loadingText: {
     color: '#fff',
     fontSize: 18,
@@ -224,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     overflow: 'hidden',
     width: screenWidth - 40,
-    height: '85%',
+    // height dinámico por dispositivo en runtime (ver CARD_HEIGHT)
     alignSelf: 'flex-start',
   },
   thumbnailContainer: {
@@ -232,7 +239,6 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
     width: '100%',
-    height: 410,
     backgroundColor: '#1a1a1a',
   },
   playOverlay: {

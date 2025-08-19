@@ -6,10 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useLocalization } from '../hooks/useLocalization';
 import { useLanguage } from '../contexts/LanguageContext';
-import LottieView from 'lottie-react-native';
-import useOnboardingStatus from '../hooks/useOnboardingStatus';
-import { useInitNotifications } from '../services/notifications';
-import { isOnboardingEnabled } from '../config/featureFlags';
+// Onboarding removido de MoreScreen
 import LanguageSelector from '../components/LanguageSelector';
 import { useBackgrounds } from '../contexts/BackgroundContext';
 
@@ -33,17 +30,7 @@ const MoreScreen = () => {
     Poppins_700Bold,
   });
 
-  // Estado de onboarding (para saber si ya decidió y ocultar tarjeta)
-  const { isCompleted, markCompleted, markPrompted, markRejected } = useOnboardingStatus();
-  const onboardingEnabled = isOnboardingEnabled();
-
-  // No inicializar OneSignal aquí. Se hará solo tras consentimiento.
-  const [notifInitRequested, setNotifInitRequested] = useState(false);
-
-  const NotificationsInitRunner = () => {
-    useInitNotifications();
-    return null;
-  };
+  // Sin lógica de onboarding/notifications en esta pantalla
 
   const handleRate = () => {
     // Redirigir a la Play Store (reemplazar con el ID real de la app)
@@ -102,13 +89,10 @@ const MoreScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.extrasTitle}</Text>
-          {(isCompleted || !onboardingEnabled) ? (
-            <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>
-          ) : null}
+          <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{translations.additionalOptions}</Text>
         </View>
         
-        {(isCompleted || !onboardingEnabled) ? (
-          <View style={styles.buttonsContainer}>
+        <View style={styles.buttonsContainer}>
             {/* Botón Califícanos */}
             <TouchableOpacity 
               style={styles.buttonWrapper} 
@@ -165,74 +149,12 @@ const MoreScreen = () => {
               </View>
             </TouchableOpacity>
           </View>
-        ) : onboardingEnabled ? (
-          <View style={styles.alertCard}>
-            <View style={styles.alertHeader}>
-              <TouchableOpacity
-                style={styles.alertLangButton}
-                onPress={handleLanguageSelect}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="language" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
-              <Text style={[styles.alertTitle, fontsLoaded && { fontFamily: 'Poppins_700Bold' }]}>
-                {t('ob_reminders_title')}
-              </Text>
-            </View>
-            <Text style={[styles.alertSubtitle, fontsLoaded && { fontFamily: 'Poppins_400Regular' }]}>
-              {t('ob_reminders_sub')}
-            </Text>
-            <LottieView
-              source={require('../assets/animations/notifications.json')}
-              autoPlay
-              loop
-              style={styles.alertLottie}
-              speed={1}
-              pointerEvents="none"
-            />
-            <View style={styles.alertButtonsRow}>
-              <TouchableOpacity
-                style={styles.alertReject}
-                onPress={async () => { await markRejected(); await markCompleted(); }}
-              >
-                <Text style={[styles.alertRejectText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
-                  {t('ob_cta_reject')}
-                </Text>
-              </TouchableOpacity>
-              <View style={styles.acceptWrapper} pointerEvents="box-none">
-                <TouchableOpacity
-                  style={styles.alertAccept}
-                  onPress={async () => {
-                    await markPrompted();
-                    // El usuario expresa intención → permitimos intentar solicitar permisos una vez
-                    setNotifInitRequested(true);
-                    await markCompleted();
-                  }}
-                >
-                  <Text style={[styles.alertAcceptText, fontsLoaded && { fontFamily: 'Poppins_600SemiBold' }]}>
-                    {t('ob_cta_enable')}
-                  </Text>
-                </TouchableOpacity>
-                <View pointerEvents="none" style={styles.doubleTapContainer}>
-                  <LottieView
-                    source={require('../assets/animations/doubletap.json')}
-                    autoPlay
-                    loop
-                    style={[styles.doubleTapLottie, styles.mirrored]}
-                  />
-                </View>
-              </View>
-            </View>
-          </View>
-        ) : null}
 
         {/* Información adicional */}
         <View style={styles.footer}>
-          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.1.0</Text>
+          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.1.1</Text>
         </View>
       </ScrollView>
-
-      {notifInitRequested && <NotificationsInitRunner />}
 
       {/* Selector de Idioma */}
       <LanguageSelector

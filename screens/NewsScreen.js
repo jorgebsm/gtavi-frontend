@@ -13,6 +13,10 @@ export default function NewsScreen({ navigation }) {
   // Hook de localización
   const { translations, isRTL, formatDate } = useLocalization();
   const { getBackgroundFor } = useBackgrounds();
+  const { height: screenHeight } = Dimensions.get('window');
+  const isSmall = screenHeight < 730;
+  const CARD_HEIGHT = Math.round(screenHeight * (isSmall ? 0.65 : 0.70));
+  const IMAGE_HEIGHT = isSmall ? Math.round(screenHeight * 0.28) : 200;
 
   // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
@@ -43,7 +47,7 @@ export default function NewsScreen({ navigation }) {
     return (
       <View style={styles.newsContainer}>
         <TouchableOpacity 
-          style={styles.newsCard}
+          style={[styles.newsCard, { height: CARD_HEIGHT }]}
           onPress={() => handleNewsPress(item)}
           activeOpacity={0.8}
         >
@@ -51,7 +55,7 @@ export default function NewsScreen({ navigation }) {
             <View style={styles.newsImageContainer}>
               <Image 
                 source={{ uri: item.image }} 
-                style={styles.newsImage}
+                style={[styles.newsImage, { height: IMAGE_HEIGHT }]}
                 resizeMode="cover"
               />
             </View>
@@ -97,7 +101,7 @@ export default function NewsScreen({ navigation }) {
       )}
       
       {/* Contenido principal */}
-      <View style={styles.content}>
+      <View style={[styles.content, isSmall && styles.contentSmall]}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{translations.news}</Text>
@@ -171,6 +175,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     // justifyContent: 'center',
   },
+  contentSmall: {
+    paddingTop: 40,
+  },
   loadingText: {
     color: '#fff',
     fontSize: 18,
@@ -225,13 +232,13 @@ const styles = StyleSheet.create({
   newsCard: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     width: screenWidth - 40,
-    height: '85%',
+    // altura asignada dinámicamente por dispositivo (CARD_HEIGHT)
     overflow: 'hidden',
     alignSelf: 'flex-start',
   },
   newsImageContainer: {
     width: '100%',
-    height: 200,
+    // altura asignada dinámicamente (IMAGE_HEIGHT)
   },
   newsImage: {
     width: '100%',
