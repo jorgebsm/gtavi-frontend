@@ -14,7 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.douapps.gtavicountdown"
+      "bundleIdentifier": "com.douapps.gtavicountdown",
+      "infoPlist": {
+        "NSPhotoLibraryAddUsageDescription": "Esta app necesita acceso a tu galería para guardar wallpapers de GTA VI.",
+        "NSPhotoLibraryUsageDescription": "Esta app necesita acceso a tu galería para guardar wallpapers de GTA VI."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +26,11 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.douapps.gtavicountdown",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

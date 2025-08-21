@@ -11,6 +11,7 @@ import NewsDetailScreen from '../screens/NewsDetailScreen';
 import LeaksDetailScreen from '../screens/LeaksDetailScreen';
 import InterstitialAdScreen from './InterstitialAdScreen';
 import adService from '../services/adService';
+import WallpapersScreen from '../screens/WallpapersScreen';
 
 const { height: initialWindowHeight } = Dimensions.get('window');
 
@@ -21,7 +22,8 @@ const screens = [
   { id: 1, component: TrailersScreen, name: 'Trailers' },
   { id: 2, component: NewsScreen, name: 'News' },
   { id: 3, component: LeaksScreen, name: 'Leaks' },
-  { id: 4, component: MoreScreen, name: 'More' },
+  { id: 4, component: WallpapersScreen, name: 'Wallpapers' },
+  { id: 5, component: MoreScreen, name: 'More' },
 ];
 
 // Componente principal que maneja el scroll vertical
@@ -50,7 +52,7 @@ function MainNavigator({ navigation, onIndexChange }) {
 
   // Verificar transición para mostrar anuncios
   const checkForAdTransition = async (fromIndex, toIndex) => {
-    const screenNames = ['Home', 'Trailers', 'News', 'Leaks', 'More'];
+    const screenNames = ['Home', 'Trailers', 'News', 'Leaks', 'Wallpapers', 'More'];
     const fromScreen = screenNames[fromIndex];
     const toScreen = screenNames[toIndex];
     

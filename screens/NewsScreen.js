@@ -220,6 +220,7 @@ const styles = StyleSheet.create({
   },
   newsWrapper: {
     // flex: 1,
+    
   },
   newsContainer: {
     width: screenWidth - 40,

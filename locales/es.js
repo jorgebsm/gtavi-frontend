@@ -77,6 +77,12 @@ export default {
   ob_reminders_title: 'Una notificación al día',
   ob_reminders_sub: 'Para avisarte cuántos días faltan para el lanzamiento ¿Te parece bien?',
   ob_cta_enable: 'De acuerdo',
-  ob_cta_reject: 'Sin notificaciones'
+  ob_cta_reject: 'Sin notificaciones',
+
+  // WallpapersScreen
+  wallpapersTitle: 'FONDOS DE PANTALLA',
+  wallpapersSubtitle: 'Descargar y Compartir',
+  download: 'Descargar',
+  wallpaperShareMessage: 'Mira este fondo de pantalla de GTA VI',
 };
 // Nota: claves de onboarding se consumen con defaults en el código si faltan
