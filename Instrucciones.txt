@@ -18,3 +18,25 @@ pricedown
 
 #Cuando fallan las fuentes, solo volvamos a reinstalar:
 npm i @expo-google-fonts/poppins
+
+-----------------------------------------------------------------------------------
+#TIP Para solucionar problema donde:
+- react-native-google-mobile-ads: Funcionaba haciendo el PREBUILD
+- Pero al existir el PREBUILD (/android) NO se podía generar el APK con:eas build -p android --profile preview
+
+# Para probar localmente:
+- Generarmos Prebuild:
+- npx expo prebuild --clean
+- Pegamos el local.properties en: miapp/Android
+	- Dentro del archivo pegamos: sdk.dir=C:\\Users\\jorge\\AppData\\Local\\Android\\Sdk
+- Desinstalamos la app del celu (recordatorio*) y ambos 2 al mismo wifi
+- npx expo run:android
+
+# Para generar el APK:
+- Eliminamos /android
+- eas build -p android --profile preview
+- eas build -p android --profile production
+-----------------------------------------------------------------------------------
+
+Version que usé pasa anuncios:
+"react-native-google-mobile-ads": "^15.2.0"

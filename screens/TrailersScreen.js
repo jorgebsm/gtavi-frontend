@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 1,
     paddingTop: 60,
-    paddingHorizontal: 20,
+    paddingHorizontal: 20, //Joke
     // justifyContent: 'center',
   },
   contentSmall: {
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   trailerCard: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     overflow: 'hidden',
-    width: screenWidth - 40,
+    width: screenWidth - 40, //Joke
     // height dinámico por dispositivo en runtime (ver CARD_HEIGHT)
     alignSelf: 'flex-start',
   },
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
 
   trailerContainer: {
-    width: screenWidth - 40,
+    width: screenWidth - 40, //Joke
     alignSelf: 'flex-start',
     marginTop: 0,
   },

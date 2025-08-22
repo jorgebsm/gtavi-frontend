@@ -8,7 +8,9 @@ import { useLocalization } from '../hooks/useLocalization';
 import { useDownload } from '../hooks/useDownload';
 import DownloadProgress from '../components/DownloadProgress';
 import SuccessAnimation from '../components/SuccessAnimation';
+import AdDownloadButton from '../components/AdDownloadButton';
 import { imagesService } from '../services/api';
+// import admobService from '../services/admobService';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -57,7 +59,7 @@ export default function WallpapersScreen() {
         //     id: '1',
         //     title: 'GTA VI Wallpaper 1',
         //     image: require('../assets/backgrounds/1.jpg'),
-        //     imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1080&q=80',
+        //     imageUrl: 'https://images.unsplash.com/1.jpg',
         //     resolution: '1920x1080',
         //     author: 'Rockstar Games'
         //   }
@@ -79,7 +81,7 @@ export default function WallpapersScreen() {
       //     id: '1',
       //     title: 'GTA VI Wallpaper 1',
       //     image: require('../assets/backgrounds/1.jpg'),
-      //     imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1080&q=80',
+      //     imageUrl: 'https://images.unsplash.com/1.jpg',
       //     resolution: '1920x1080',
       //     author: 'Rockstar Games'
       //   }
@@ -188,22 +190,12 @@ export default function WallpapersScreen() {
                 </Text>
              </View>
             
-            {/* Botón de descarga abajo a la derecha */}
-            <TouchableOpacity 
-              style={[styles.downloadButton, isDownloading && styles.downloadButtonDisabled]}
-              onPress={() => handleDownload(item)}
-              activeOpacity={0.8}
-              disabled={isDownloading}
-            >
-              <Ionicons 
-                name={isDownloading ? "hourglass" : "download"} 
-                size={22} 
-                color="#fff" 
-              />
-              <Text style={styles.downloadButtonText}>
-                {isDownloading ? 'Descargando...' : 'Descargar'}
-              </Text>
-            </TouchableOpacity>
+                         {/* Botón de descarga con anuncio recompensado */}
+             <AdDownloadButton
+               wallpaper={item}
+               onDownload={handleDownload}
+               isDownloading={isDownloading}
+             />
           </View>
         </TouchableOpacity>
       </View>
@@ -219,7 +211,7 @@ export default function WallpapersScreen() {
     );
   }
 
-  // Mostrar indicador de carga
+  // Mostrar indicador de scroll
   // if (isLoading) {
   //   return (
   //     <View style={styles.container}>

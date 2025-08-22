@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { BackgroundProvider } from './contexts/BackgroundContext';
+import { AdProvider } from './contexts/AdContext';
 
 const isExpoGo = Constants.appOwnership === 'expo';
 
@@ -34,8 +35,10 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
         <BackgroundProvider>
-          <TikTokNavigator />
-          {/* <OnboardingOverlay/> */}
+          <AdProvider>
+            <TikTokNavigator />
+            {/* <OnboardingOverlay/> */}
+          </AdProvider>
         </BackgroundProvider>
       </LanguageProvider>
     </GestureHandlerRootView>

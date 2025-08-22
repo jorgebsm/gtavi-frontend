@@ -253,7 +253,6 @@ export const imagesService = {
   
   // Transformar datos de la API al formato esperado por WallpapersScreen
   transformApiDataToWallpapers: (apiData) => {
-    console.log('🔍 Transformando datos de la API:', apiData);
     
     // Verificar que apiData existe y tiene la estructura esperada
     if (!apiData) {
@@ -270,8 +269,6 @@ export const imagesService = {
       console.warn('⚠️ apiData.data no es un array:', typeof apiData.data);
       return [];
     }
-    
-    console.log(`✅ Transformando ${apiData.data.length} imágenes`);
     
     return apiData.data.map((image, index) => ({
       id: image._id || String(index + 1),
