@@ -19,10 +19,11 @@ export default {
   more: 'More',
   
   // Common
-  errorConnection: 'Connection Error',
+  errorConnection: 'Connection error',
   errorMessage: 'Could not connect to server. Using default data.',
   ok: 'OK',
   dateNotAvailable: 'Date not available',
+  retryButton: 'Retry',
   
   // TrailersScreen
   trailerTitle: 'TRAILERS',
@@ -81,8 +82,37 @@ export default {
 
   // WallpapersScreen
   wallpapersTitle: 'WALLPAPERS',
-  wallpapersSubtitle: 'Download & Share',
+  wallpapersSubtitle: 'Download and Share',
   download: 'Download',
   wallpaperShareMessage: 'Check out this GTA VI wallpaper',
+  
+  // AdDownloadButton
+  initializing: 'Initializing...',
+  loading: 'Loading...',
+  viewingAd: 'Watching ad...',
+  downloading: 'Downloading...',
+  adSystemNotAvailable: 'Ad system not available',
+  adSystemInitializing: 'The ad system is still initializing. Please wait a moment.',
+  adNotAvailable: 'Ad not available',
+  adStillLoading: 'The ad is still loading. Please wait a moment and try again.',
+  adShowError: 'Could not show the ad. Try again later.',
+  adUnexpectedError: 'An unexpected error occurred while showing the ad. Try again.',
+  error: 'Error',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Downloading wallpaper...',
+  
+  // useDownload
+  downloadingTitle: 'Downloading...',
+  savingWallpaper: 'Saving wallpaper to gallery...',
+  savingImage: 'Saving image to gallery...',
+  downloadError: 'Could not download wallpaper. Please try again.',
+  downloadErrorGeneric: 'Download error',
+  
+  // WallpaperScreen specific
+  fondos: 'WALLPAPERS',
+  autoria: 'Author',
+  swipeForMore: 'Swipe for more',
+  loadingImage: 'Loading image...',
 };
 // Note: onboarding keys are optional and defaulted in code if missing

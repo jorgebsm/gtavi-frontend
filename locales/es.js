@@ -23,6 +23,7 @@ export default {
   errorMessage: 'No se pudo conectar con el servidor. Usando datos por defecto.',
   ok: 'OK',
   dateNotAvailable: 'Fecha no disponible',
+  retryButton: 'Reintentar',
   
   // TrailersScreen
   trailerTitle: 'TRAILERS',
@@ -80,9 +81,38 @@ export default {
   ob_cta_reject: 'Sin notificaciones',
 
   // WallpapersScreen
-  wallpapersTitle: 'FONDOS DE PANTALLA',
+  wallpapersTitle: 'FONDOS',
   wallpapersSubtitle: 'Descargar y Compartir',
   download: 'Descargar',
   wallpaperShareMessage: 'Mira este fondo de pantalla de GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Inicializando...',
+  loading: 'Cargando...',
+  viewingAd: 'Viendo anuncio...',
+  downloading: 'Descargando...',
+  adSystemNotAvailable: 'Sistema de anuncios no disponible',
+  adSystemInitializing: 'El sistema de anuncios aún se está inicializando. Por favor, espera un momento.',
+  adNotAvailable: 'Anuncio no disponible',
+  adStillLoading: 'El anuncio aún se está cargando. Por favor, espera un momento e inténtalo de nuevo.',
+  adShowError: 'No se pudo mostrar el anuncio. Inténtalo de nuevo más tarde.',
+  adUnexpectedError: 'Ocurrió un error al mostrar el anuncio. Inténtalo de nuevo.',
+  error: 'Error',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Descargando wallpaper...',
+  
+  // useDownload
+  downloadingTitle: 'Descargando...',
+  savingWallpaper: 'Guardando wallpaper en la galería...',
+  savingImage: 'Guardando imagen en la galería...',
+  downloadError: 'No se pudo descargar el wallpaper. Inténtalo de nuevo.',
+  downloadErrorGeneric: 'Error al descargar',
+  
+  // WallpaperScreen specific
+  fondos: 'FONDOS',
+  autoria: 'Autoría',
+  swipeForMore: 'Desliza para ver más',
+  loadingImage: 'Cargando imagen...',
 };
 // Nota: claves de onboarding se consumen con defaults en el código si faltan

@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalization } from '../hooks/useLocalization';
 
 const DownloadProgress = ({ progress, isVisible }) => {
+  const { translations } = useLocalization();
+  
   if (!isVisible) return null;
 
   return (
@@ -14,7 +17,7 @@ const DownloadProgress = ({ progress, isVisible }) => {
         </View>
         <Text style={styles.progressText}>{progress}%</Text>
       </View>
-      <Text style={styles.statusText}>Descargando wallpaper...</Text>
+      <Text style={styles.statusText}>{translations.downloadingWallpaper}</Text>
     </View>
   );
 };

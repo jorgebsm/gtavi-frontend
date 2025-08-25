@@ -76,6 +76,33 @@ export default {
   ob_reminders_title: 'Une notification par jour',
   ob_reminders_sub: 'On vous dira combien de jours il reste. Ça vous va ?',
   ob_cta_enable: 'D\'accord',
-  ob_cta_reject: 'Sans notifications'
+  ob_cta_reject: 'Sans notifications',
+
+  // WallpapersScreen
+  wallpapersTitle: 'FONDS D\'ÉCRAN',
+  wallpapersSubtitle: 'Télécharger et Partager',
+  download: 'Télécharger',
+  wallpaperShareMessage: 'Regardez ce fond d\'écran GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Initialisation...',
+  loading: 'Chargement...',
+  viewingAd: 'Regardage de la pub...',
+  downloading: 'Téléchargement...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Téléchargement du fond d\'écran...',
+  
+  // useDownload
+  downloadingTitle: 'Téléchargement...',
+  savingWallpaper: 'Sauvegarde du fond d\'écran dans la galerie...',
+  savingImage: 'Sauvegarde de l\'image dans la galerie...',
+  downloadError: 'Impossible de télécharger le fond d\'écran. Veuillez réessayer.',
+  downloadErrorGeneric: 'Erreur de téléchargement',
+  
+  // WallpaperScreen specific
+  fondos: 'FONDS D\'ÉCRAN',
+  autoria: 'Auteur',
+  swipeForMore: 'Glissez pour plus'
 };
 // Remarque: les clés d'onboarding sont facultatives et ont des valeurs par défaut dans le code

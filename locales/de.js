@@ -77,6 +77,33 @@ export default {
   ob_reminders_title: 'Eine Benachrichtigung pro Tag',
   ob_reminders_sub: 'Wir sagen dir, wie viele Tage noch bleiben. Einverstanden?',
   ob_cta_enable: 'Einverstanden',
-  ob_cta_reject: 'Keine Benachrichtigungen'
+  ob_cta_reject: 'Keine Benachrichtigungen',
+
+  // WallpapersScreen
+  wallpapersTitle: 'HINTERGRUNDBILDER',
+  wallpapersSubtitle: 'Herunterladen und Teilen',
+  download: 'Herunterladen',
+  wallpaperShareMessage: 'Schau dir diesen GTA VI Hintergrund an',
+  
+  // AdDownloadButton
+  initializing: 'Initialisiere...',
+  loading: 'Lädt...',
+  viewingAd: 'Werbung wird angesehen...',
+  downloading: 'Lädt herunter...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Hintergrundbild wird heruntergeladen...',
+  
+  // useDownload
+  downloadingTitle: 'Lädt herunter...',
+  savingWallpaper: 'Hintergrundbild wird in Galerie gespeichert...',
+  savingImage: 'Bild wird in Galerie gespeichert...',
+  downloadError: 'Hintergrundbild konnte nicht heruntergeladen werden. Bitte versuche es erneut.',
+  downloadErrorGeneric: 'Download-Fehler',
+  
+  // WallpaperScreen specific
+  fondos: 'HINTERGRUNDBILDER',
+  autoria: 'Autor',
+  swipeForMore: 'Wische für mehr'
 };
 

@@ -76,6 +76,33 @@ export default {
   ob_reminders_title: 'Uma notificação por dia',
   ob_reminders_sub: 'Vamos dizer quantos dias faltam. Tudo bem?',
   ob_cta_enable: 'Concordo',
-  ob_cta_reject: 'Sem notificações'
+  ob_cta_reject: 'Sem notificações',
+
+  // WallpapersScreen
+  wallpapersTitle: 'PAPÉIS DE PAREDE',
+  wallpapersSubtitle: 'Baixar e Compartilhar',
+  download: 'Baixar',
+  wallpaperShareMessage: 'Veja este papel de parede GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Inicializando...',
+  loading: 'Carregando...',
+  viewingAd: 'Vendo anúncio...',
+  downloading: 'Baixando...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Baixando papel de parede...',
+  
+  // useDownload
+  downloadingTitle: 'Baixando...',
+  savingWallpaper: 'Salvando papel de parede na galeria...',
+  savingImage: 'Salvando imagem na galeria...',
+  downloadError: 'Não foi possível baixar o papel de parede. Tente novamente.',
+  downloadErrorGeneric: 'Erro ao baixar',
+  
+  // WallpaperScreen specific
+  fondos: 'PAPÉIS DE PAREDE',
+  autoria: 'Autor',
+  swipeForMore: 'Deslize para mais'
 };
 // Observação: chaves de onboarding são opcionais e têm defaults no código

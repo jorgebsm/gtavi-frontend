@@ -8,28 +8,23 @@ export const ADMOB_CONFIG = {
       interstitial: 'ca-app-pub-3940256099942544/1033173712',
       rewarded: 'ca-app-pub-3940256099942544/5224354917',
     },
-    ios: {
-      appId: 'ca-app-pub-3940256099942544~1458002511',
-      banner: 'ca-app-pub-3940256099942544/2934735716',
-      interstitial: 'ca-app-pub-3940256099942544/4411468910',
-      rewarded: 'ca-app-pub-3940256099942544/1712485313',
-    },
+    // iOS se configurará cuando tengas los IDs reales
   },
   
-  // IDs de producción (reemplazar con los tuyos)
+  // IDs de producción (REEMPLAZAR CON LOS TUYOS REALES)
   productionIds: {
     android: {
-      appId: 'ca-app-pub-3940256099942544~3347511713', // Reemplazar
-      banner: 'ca-app-pub-3940256099942544/6300978111', // Reemplazar
-      interstitial: 'ca-app-pub-3940256099942544/1033173712', // Reemplazar
-      rewarded: 'ca-app-pub-3940256099942544/5224354917', // Reemplazar
+      appId: 'ca-app-pub-8096470331985565~8673949283', // Ejemplo: ca-app-pub-1234567890123456~1234567890
+      banner: 'ca-app-pub-8096470331985565/2287971502', // Ejemplo: ca-app-pub-1234567890123456/1234567890
+      interstitial: 'ca-app-pub-8096470331985565/8490417776', // Ejemplo: ca-app-pub-1234567890123456/1234567890
+      rewarded: 'ca-app-pub-8096470331985565/5828595415', // Ejemplo: ca-app-pub-1234567890123456/1234567890
     },
-    ios: {
-      appId: 'ca-app-pub-3940256099942544~1458002511', // Reemplazar
-      banner: 'ca-app-pub-3940256099942544/2934735716', // Reemplazar
-      interstitial: 'ca-app-pub-3940256099942544/4411468910', // Reemplazar
-      rewarded: 'ca-app-pub-3940256099942544/1712485313', // Reemplazar
-    },
+    // ios: {
+    //   appId: 'TU_IOS_APP_ID_AQUI', // Ejemplo: ca-app-pub-1234567890123456~0987654321
+    //   banner: 'TU_IOS_BANNER_ID_AQUI', // Ejemplo: ca-app-pub-1234567890123456/0987654321
+    //   interstitial: 'TU_IOS_INTERSTITIAL_ID_AQUI', // Ejemplo: ca-app-pub-1234567890123456/0987654321
+    //   rewarded: 'TU_IOS_REWARDED_ID_AQUI', // Ejemplo: ca-app-pub-1234567890123456/0987654321
+    // },
   },
 };
 

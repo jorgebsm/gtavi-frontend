@@ -323,9 +323,9 @@ const styles = StyleSheet.create({
     bottom: 200,
   },
   logoImage: {
-    width: 150,
-    height: 150,
-    right: 10,
+    width: 120,
+    height: 120,
+    right: 8,
   },
   daysContainer: {
     alignItems: 'center',
@@ -395,14 +395,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 0,
-    marginBottom: -16,
+    marginBottom: 40,
     zIndex: 2,
-    transform: [{ translateY: 90 }]
+    transform: [{ translateY: 140 }]
   },
   fixedLogoContainerSmall: {
     marginTop: 0,
-    marginBottom: 4,
-    transform: [{ translateY: 60 }]
+    marginBottom: 20,
+    transform: [{ translateY: 80 }]
   },
   dynamicContent: {
     alignItems: 'center',

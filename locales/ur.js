@@ -80,6 +80,32 @@ export default {
   ob_reminders_title: 'روزانہ ایک اطلاع',
   ob_reminders_sub: 'ہم آپ کو بتائیں گے کتنے دن باقی ہیں۔ ٹھیک ہے؟',
   ob_cta_enable: 'متفق',
-  ob_cta_reject: 'کوئی اطلاعات نہیں'
+  ob_cta_reject: 'کوئی اطلاعات نہیں',
+  // WallpapersScreen
+  wallpapersTitle: 'وال پیپر',
+  wallpapersSubtitle: 'ڈاؤن لوڈ اور شیئر کریں',
+  download: 'ڈاؤن لوڈ',
+  wallpaperShareMessage: 'یہ GTA VI وال پیپر دیکھیں',
+  
+  // AdDownloadButton
+  initializing: 'شروع ہو رہا ہے...',
+  loading: 'لوڈ ہو رہا ہے...',
+  viewingAd: 'اشتہار دیکھ رہے ہیں...',
+  downloading: 'ڈاؤن لوڈ ہو رہا ہے...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'وال پیپر ڈاؤن لوڈ ہو رہا ہے...',
+  
+  // useDownload
+  downloadingTitle: 'ڈاؤن لوڈ ہو رہا ہے...',
+  savingWallpaper: 'وال پیپر گیلری میں محفوظ ہو رہا ہے...',
+  savingImage: 'تصویر گیلری میں محفوظ ہو رہی ہے...',
+  downloadError: 'وال پیپر ڈاؤن لوڈ نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔',
+  downloadErrorGeneric: 'ڈاؤن لوڈ کی خرابی',
+  
+  // WallpaperScreen specific
+  fondos: 'وال پیپر',
+  autoria: 'مصنف',
+  swipeForMore: 'مزید کے لیے سوائپ کریں',
 };
 

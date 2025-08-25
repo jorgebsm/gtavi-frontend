@@ -76,6 +76,33 @@ export default {
   ob_reminders_title: 'Jedno powiadomienie dziennie',
   ob_reminders_sub: 'Powiemy, ile dni zostało. W porządku?',
   ob_cta_enable: 'Zgadzam się',
-  ob_cta_reject: 'Bez powiadomień'
+  ob_cta_reject: 'Bez powiadomień',
+  
+  // WallpapersScreen
+  wallpapersTitle: 'TAPETY',
+  wallpapersSubtitle: 'Pobierz i Udostępnij',
+  download: 'Pobierz',
+  wallpaperShareMessage: 'Zobacz tę tapetę GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Inicjalizacja...',
+  loading: 'Ładowanie...',
+  viewingAd: 'Oglądanie reklamy...',
+  downloading: 'Pobieranie...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Pobieranie tapety...',
+  
+  // useDownload
+  downloadingTitle: 'Pobieranie...',
+  savingWallpaper: 'Zapisywanie tapety do galerii...',
+  savingImage: 'Zapisywanie obrazu do galerii...',
+  downloadError: 'Nie udało się pobrać tapety. Spróbuj ponownie.',
+  downloadErrorGeneric: 'Błąd pobierania',
+  
+  // WallpaperScreen specific
+  fondos: 'TAPETY',
+  autoria: 'Autor',
+  swipeForMore: 'Przesuń dla więcej'
 };
 // Uwaga: klucze onboarding są opcjonalne, w kodzie są wartości domyślne

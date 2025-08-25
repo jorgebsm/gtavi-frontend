@@ -94,6 +94,33 @@ export default {
   ob_reminders_sub: 'سنخبرك بعدد الأيام المتبقية',
   ob_cta_enable: 'أريد التذكيرات',
   ob_cta_reject: 'بدون إشعارات',
-  ob_skip: 'عرض التطبيق'
+  ob_skip: 'عرض التطبيق',
+
+  // WallpapersScreen
+  wallpapersTitle: 'خلفيات',
+  wallpapersSubtitle: 'تحميل ومشاركة',
+  download: 'تحميل',
+  wallpaperShareMessage: 'شاهد خلفية GTA VI هذه',
+  
+  // AdDownloadButton
+  initializing: 'جاري التهيئة...',
+  loading: 'جاري التحميل...',
+  viewingAd: 'مشاهدة الإعلان...',
+  downloading: 'جاري التحميل...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'جاري تحميل الخلفية...',
+  
+  // useDownload
+  downloadingTitle: 'جاري التحميل...',
+  savingWallpaper: 'جاري حفظ الخلفية في المعرض...',
+  savingImage: 'جاري حفظ الصورة في المعرض...',
+  downloadError: 'تعذر تحميل الخلفية. يرجى المحاولة مرة أخرى.',
+  downloadErrorGeneric: 'خطأ في التحميل',
+  
+  // WallpaperScreen specific
+  fondos: 'خلفيات',
+  autoria: 'المؤلف',
+  swipeForMore: 'اسحب للمزيد'
 };
 // ملاحظة: مفاتيح الإعداد الأولي اختيارية وتحتوي على قيم افتراضية في الكود

@@ -11,7 +11,7 @@ import NewsDetailScreen from '../screens/NewsDetailScreen';
 import LeaksDetailScreen from '../screens/LeaksDetailScreen';
 import InterstitialAdScreen from './InterstitialAdScreen';
 import adService from '../services/adService';
-import WallpapersScreen from '../screens/WallpapersScreen';
+import WallpapersScreen from '../screens/WallpapersScreen'; //Joke
 
 const { height: initialWindowHeight } = Dimensions.get('window');
 
@@ -22,7 +22,7 @@ const screens = [
   { id: 1, component: TrailersScreen, name: 'Trailers' },
   { id: 2, component: NewsScreen, name: 'News' },
   { id: 3, component: LeaksScreen, name: 'Leaks' },
-  { id: 4, component: WallpapersScreen, name: 'Wallpapers' },
+  { id: 4, component: WallpapersScreen, name: 'Wallpapers' }, //Joke
   { id: 5, component: MoreScreen, name: 'More' },
 ];
 

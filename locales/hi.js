@@ -77,6 +77,33 @@ export default {
   ob_reminders_title: 'रोज़ एक सूचन',
   ob_reminders_sub: 'हम बताएँगे कितने दिन बचे हैं। ठीक है?',
   ob_cta_enable: 'सहमत',
-  ob_cta_reject: 'कोई सूचन नहीं'
+  ob_cta_reject: 'कोई सूचन नहीं',
+
+  // WallpapersScreen
+  wallpapersTitle: 'वॉलपेपर',
+  wallpapersSubtitle: 'डाउनलोड और शेयर करें',
+  download: 'डाउनलोड',
+  wallpaperShareMessage: 'इस GTA VI वॉलपेपर को देखें',
+  
+  // AdDownloadButton
+  initializing: 'प्रारंभ हो रहा है...',
+  loading: 'लोड हो रहा है...',
+  viewingAd: 'विज्ञापन देख रहे हैं...',
+  downloading: 'डाउनलोड हो रहा है...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'वॉलपेपर डाउनलोड हो रहा है...',
+  
+  // useDownload
+  downloadingTitle: 'डाउनलोड हो रहा है...',
+  savingWallpaper: 'वॉलपेपर गैलरी में सेव हो रहा है...',
+  savingImage: 'छवि गैलरी में सेव हो रही है...',
+  downloadError: 'वॉलपेपर डाउनलोड नहीं हो सका। कृपया पुनः प्रयास करें।',
+  downloadErrorGeneric: 'डाउनलोड त्रुटि',
+  
+  // WallpaperScreen specific
+  fondos: 'वॉलपेपर',
+  autoria: 'लेखक',
+  swipeForMore: 'और देखने के लिए स्वाइप करें',
 };
 

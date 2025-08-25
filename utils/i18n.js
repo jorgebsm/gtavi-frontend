@@ -4,7 +4,6 @@ import { translations, supportedLanguages, regionLanguageMapping } from '../loca
 
 // Crear instancia de i18n
 const i18n = new I18n(translations);
-
 // Configuración por defecto
 i18n.defaultLocale = 'es';
 i18n.locale = 'es';

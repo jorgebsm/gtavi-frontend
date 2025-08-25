@@ -77,6 +77,33 @@ export default {
   ob_reminders_title: 'Одно уведомление в день',
   ob_reminders_sub: 'Мы будем сообщать, сколько дней осталось. Подходит?',
   ob_cta_enable: 'Согласен',
-  ob_cta_reject: 'Без уведомлений'
+  ob_cta_reject: 'Без уведомлений',
+
+  // WallpapersScreen
+  wallpapersTitle: 'ОБОИ',
+  wallpapersSubtitle: 'Скачать и Поделиться',
+  download: 'Скачать',
+  wallpaperShareMessage: 'Посмотрите эти обои GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Инициализация...',
+  loading: 'Загрузка...',
+  viewingAd: 'Просмотр рекламы...',
+  downloading: 'Скачивание...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Скачивание обоев...',
+  
+  // useDownload
+  downloadingTitle: 'Скачивание...',
+  savingWallpaper: 'Сохранение обоев в галерею...',
+  savingImage: 'Сохранение изображения в галерею...',
+  downloadError: 'Не удалось скачать обои. Попробуйте снова.',
+  downloadErrorGeneric: 'Ошибка скачивания',
+  
+  // WallpaperScreen specific
+  fondos: 'ОБОИ',
+  autoria: 'Автор',
+  swipeForMore: 'Свайпните для большего'
 };
 

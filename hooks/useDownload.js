@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import downloadService from '../services/downloadService';
+import { useLocalization } from './useLocalization';
 
 export const useDownload = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const { translations } = useLocalization();
 
   const downloadWallpaper = async (wallpaper) => {
     if (isDownloading) return;
@@ -61,18 +63,18 @@ export const useDownload = () => {
           setShowSuccessAnimation(false);
         }, 2000);
       } else {
-        Alert.alert('Error', result.message, [{ text: 'OK' }]);
+        Alert.alert(translations.error || 'Error', translations.downloadError || 'No se pudo descargar el wallpaper. Inténtalo de nuevo.', [{ text: translations.ok || 'OK' }]);
       }
 
       return result;
     } catch (error) {
       console.error('Error downloading wallpaper:', error);
       Alert.alert(
-        'Error',
-        'No se pudo descargar el wallpaper. Inténtalo de nuevo.',
-        [{ text: 'OK' }]
+        translations.error || 'Error',
+        translations.downloadError || 'No se pudo descargar el wallpaper. Inténtalo de nuevo.',
+        [{ text: translations.ok || 'OK' }]
       );
-      return { success: false, message: 'Error al descargar' };
+      return { success: false, message: translations.downloadErrorGeneric || 'Error al descargar' };
     } finally {
       setIsDownloading(false);
       setDownloadProgress(0);
@@ -88,8 +90,8 @@ export const useDownload = () => {
 
       // Mostrar indicador de descarga
       Alert.alert(
-        'Descargando...',
-        'Guardando imagen en la galería...',
+        translations.downloadingTitle || 'Descargando...',
+        translations.savingImage || 'Guardando imagen en la galería...',
         [],
         { cancelable: false }
       );

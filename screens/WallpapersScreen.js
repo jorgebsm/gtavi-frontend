@@ -10,15 +10,86 @@ import DownloadProgress from '../components/DownloadProgress';
 import SuccessAnimation from '../components/SuccessAnimation';
 import AdDownloadButton from '../components/AdDownloadButton';
 import { imagesService } from '../services/api';
+import { t } from '../utils/i18n';
 // import admobService from '../services/admobService';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+// Componente de imagen mejorado que maneja el estado de carga
+const WallpaperImage = ({ source, style, defaultSource }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const { translations } = useLocalization();
+
+  // useEffect(() => {
+  //   // Timeout para evitar que la imagen se quede cargando indefinidamente
+  //   const timeoutId = setTimeout(() => {
+  //     if (isLoading) {
+  //       console.log('⏰ Timeout de carga de imagen alcanzado, usando fallback');
+  //       setIsLoading(false);
+  //       setHasError(true);
+  //     }
+  //   }, 10000); // 10 segundos de timeout
+
+  //   return () => clearTimeout(timeoutId);
+  // }, [isLoading]);
+
+  const handleLoadStart = () => {
+    setIsLoading(true);
+    setHasError(false);
+  };
+
+  const handleLoadEnd = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    // console.log('❌ Error cargando imagen, usando fallback');
+    setIsLoading(false);
+    setHasError(true);
+  };
+
+  return (
+    <View style={[style, { justifyContent: 'center', alignItems: 'center' }]}>
+      <Image 
+        source={source}
+        style={[style, { position: 'absolute' }]}
+        resizeMode="cover"
+        defaultSource={defaultSource}
+        onLoadStart={handleLoadStart}
+        onLoadEnd={handleLoadEnd}
+        onError={handleError}
+        // Propiedades adicionales para mejorar la carga
+        fadeDuration={300}
+        progressiveRenderingEnabled={true}
+      />
+      
+      {/* Indicador de carga */}
+      {isLoading && (
+        <View style={styles.imageLoadingContainer}>
+          <ActivityIndicator size="large" color="#ff6b35" />
+          <Text style={styles.imageLoadingText}>{translations.loadingImage || 'Cargando imagen...'}</Text>
+        </View>
+      )}
+      
+      {/* Imagen de fallback en caso de error */}
+      {hasError && (
+        <Image 
+          source={defaultSource}
+          style={style}
+          resizeMode="cover"
+        />
+      )}
+    </View>
+  );
+};
 
 export default function WallpapersScreen() {
   // Hook de localización
   const { translations, isRTL } = useLocalization();
   const { getBackgroundFor } = useBackgrounds();
   const { downloadWallpaper, isDownloading, downloadProgress, showSuccessAnimation } = useDownload();
+  
   const { height: screenHeight } = Dimensions.get('window');
   const isSmall = screenHeight < 730;
   const CARD_HEIGHT = Math.round(screenHeight * (isSmall ? 0.65 : 0.70));
@@ -171,12 +242,11 @@ export default function WallpapersScreen() {
         >
           {/* Imagen del wallpaper */}
           <View style={styles.imageContainer}>
-                         <Image 
-               source={item.imageUrl ? { uri: item.imageUrl } : item.image} 
-               style={[styles.wallpaperImage, { height: CARD_HEIGHT }]}
-               resizeMode="cover"
-               loadingIndicatorSource={require('../assets/backgrounds/1.jpg')}
-             />
+            <WallpaperImage
+              source={item.imageUrl ? { uri: item.imageUrl } : item.image} 
+              style={[styles.wallpaperImage, { height: CARD_HEIGHT }]}
+              // defaultSource={require('../assets/backgrounds/1.jpg')}
+            />
             <View style={styles.downloadOverlay}>
               <Ionicons name="download-outline" size={32} color="#ff6b35" />
               <Text style={styles.downloadText}>{translations.download}</Text>
@@ -184,18 +254,18 @@ export default function WallpapersScreen() {
             <View style={styles.resolutionBadge}>
               <Text style={styles.resolutionText}>{item.resolution}</Text>
             </View>
-                <View style={styles.categoryBadge}>
-                <Text style={styles.categoryText}>
-                  Autoría: <Text style={styles.authorBold}>{item.author}</Text>
-                </Text>
-             </View>
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>
+                {t('autoria')}: <Text style={styles.authorBold}>{item.author}</Text>
+              </Text>
+            </View>
             
-                         {/* Botón de descarga con anuncio recompensado */}
-             <AdDownloadButton
-               wallpaper={item}
-               onDownload={handleDownload}
-               isDownloading={isDownloading}
-             />
+            {/* Botón de descarga con anuncio recompensado */}
+            <AdDownloadButton
+              wallpaper={item}
+              onDownload={handleDownload}
+              isDownloading={isDownloading}
+            />
           </View>
         </TouchableOpacity>
       </View>
@@ -206,7 +276,7 @@ export default function WallpapersScreen() {
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Cargando...</Text>
+        <Text style={styles.loadingText}>{translations.loading}</Text>
       </View>
     );
   }
@@ -232,7 +302,7 @@ export default function WallpapersScreen() {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={loadWallpapers}>
-            <Text style={styles.retryButtonText}>Reintentar</Text>
+            <Text style={styles.retryButtonText}>{translations.retryButton || 'Reintentar'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -267,13 +337,12 @@ export default function WallpapersScreen() {
       <View style={[styles.content, isSmall && styles.contentSmall]}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>FONDOS</Text>
-          {/* <Text style={styles.headerSubtitle}>Descargar y Compartir</Text> */}
+          <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{t('fondos')}</Text>
         </View>
 
         {/* Indicador de scroll */}
         <View style={[styles.scrollIndicator, isRTL && styles.rtlContainer]}>
-          <Text style={[styles.scrollText, isRTL && styles.rtlText]}>{translations.swipeForMore}</Text>
+          <Text style={[styles.scrollText, isRTL && styles.rtlText]}>{t('swipeForMore')}</Text>
           <Ionicons 
             name={isRTL ? "chevron-back" : "chevron-forward"} 
             size={20} 
@@ -556,5 +625,34 @@ const styles = StyleSheet.create({
   downloadButtonDisabled: {
     backgroundColor: '#666',
     opacity: 0.7,
+  },
+  imageLoadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    zIndex: 1,
+  },
+  imageLoadingText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    marginTop: 10,
+  },
+  adStatusContainer: {
+    backgroundColor: 'rgba(255, 107, 53, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  adStatusText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    color: '#ff6b35',
   },
 });

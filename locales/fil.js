@@ -77,6 +77,33 @@ export default {
   ob_reminders_title: 'Isang abiso bawat araw',
   ob_reminders_sub: 'Sasabihin namin kung ilang araw na lang natitira. Ayos ba?',
   ob_cta_enable: 'Sang-ayon',
-  ob_cta_reject: 'Walang abiso'
+  ob_cta_reject: 'Walang abiso',
+
+  // WallpapersScreen
+  wallpapersTitle: 'WALLPAPERS',
+  wallpapersSubtitle: 'I-download at Ibahagi',
+  download: 'I-download',
+  wallpaperShareMessage: 'Tingnan ang wallpaper na ito ng GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Sinisimulan...',
+  loading: 'Naglo-load...',
+  viewingAd: 'Nanonood ng ad...',
+  downloading: 'Nagda-download...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Nagda-download ng wallpaper...',
+  
+  // useDownload
+  downloadingTitle: 'Nagda-download...',
+  savingWallpaper: 'Sinasave ang wallpaper sa gallery...',
+  savingImage: 'Sinasave ang image sa gallery...',
+  downloadError: 'Hindi ma-download ang wallpaper. Subukan ulit.',
+  downloadErrorGeneric: 'Error sa pag-download',
+  
+  // WallpaperScreen specific
+  fondos: 'WALLPAPERS',
+  autoria: 'May-akda',
+  swipeForMore: 'I-swipe para sa iba pa'
 };
 

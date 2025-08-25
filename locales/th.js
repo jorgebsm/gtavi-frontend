@@ -77,6 +77,33 @@ export default {
   ob_reminders_title: 'แจ้งเตือนวันละครั้ง',
   ob_reminders_sub: 'เราจะแจ้งให้ทราบว่ายังเหลืออีกกี่วัน ตกลงไหม?',
   ob_cta_enable: 'ตกลง',
-  ob_cta_reject: 'ไม่รับการแจ้งเตือน'
+  ob_cta_reject: 'ไม่รับการแจ้งเตือน',
+
+  // WallpapersScreen
+  wallpapersTitle: 'วอลเปเปอร์',
+  wallpapersSubtitle: 'ดาวน์โหลดและแชร์',
+  download: 'ดาวน์โหลด',
+  wallpaperShareMessage: 'ดูวอลเปเปอร์ GTA VI นี้',
+  
+  // AdDownloadButton
+  initializing: 'กำลังเริ่มต้น...',
+  loading: 'กำลังโหลด...',
+  viewingAd: 'กำลังดูโฆษณา...',
+  downloading: 'กำลังดาวน์โหลด...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'กำลังดาวน์โหลดวอลเปเปอร์...',
+  
+  // useDownload
+  downloadingTitle: 'กำลังดาวน์โหลด...',
+  savingWallpaper: 'กำลังบันทึกวอลเปเปอร์ในแกลเลอรี่...',
+  savingImage: 'กำลังบันทึกภาพในแกลเลอรี่...',
+  downloadError: 'ไม่สามารถดาวน์โหลดวอลเปเปอร์ได้ กรุณาลองใหม่อีกครั้ง',
+  downloadErrorGeneric: 'ข้อผิดพลาดในการดาวน์โหลด',
+  
+  // WallpaperScreen specific
+  fondos: 'วอลเปเปอร์',
+  autoria: 'ผู้สร้าง',
+  swipeForMore: 'ปัดเพื่อดูเพิ่มเติม',
 };
 

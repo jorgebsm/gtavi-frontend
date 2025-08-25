@@ -115,7 +115,43 @@ export const useLocalization = () => {
       errorConnection: translate('errorConnection'),
       errorMessage: translate('errorMessage'),
       ok: translate('ok'),
-      dateNotAvailable: translate('dateNotAvailable')
+      dateNotAvailable: translate('dateNotAvailable'),
+      retryButton: translate('retryButton'),
+      
+      // WallpapersScreen
+      wallpapersTitle: translate('wallpapersTitle'),
+      wallpapersSubtitle: translate('wallpapersSubtitle'),
+      download: translate('download'),
+      wallpaperShareMessage: translate('wallpaperShareMessage'),
+      
+      // AdDownloadButton
+      initializing: translate('initializing'),
+      loading: translate('loading'),
+      viewingAd: translate('viewingAd'),
+      downloading: translate('downloading'),
+      adSystemNotAvailable: translate('adSystemNotAvailable'),
+      adSystemInitializing: translate('adSystemInitializing'),
+      adNotAvailable: translate('adNotAvailable'),
+      adStillLoading: translate('adStillLoading'),
+      adShowError: translate('adShowError'),
+      adUnexpectedError: translate('adUnexpectedError'),
+      error: translate('error'),
+      
+      // DownloadProgress
+      downloadingWallpaper: translate('downloadingWallpaper'),
+      
+      // useDownload
+      downloadingTitle: translate('downloadingTitle'),
+      savingWallpaper: translate('savingWallpaper'),
+      savingImage: translate('savingImage'),
+      downloadError: translate('downloadError'),
+      downloadErrorGeneric: translate('downloadErrorGeneric'),
+      
+      // WallpaperScreen specific
+      fondos: translate('fondos'),
+      autoria: translate('autoria'),
+      swipeForMore: translate('swipeForMore'),
+      loadingImage: translate('loadingImage')
     }
   };
 };

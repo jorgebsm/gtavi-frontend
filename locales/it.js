@@ -77,6 +77,33 @@ export default {
   ob_reminders_title: 'Una notifica al giorno',
   ob_reminders_sub: 'Ti diremo quanti giorni mancano. Va bene?',
   ob_cta_enable: 'OK',
-  ob_cta_reject: 'No notifiche'
+  ob_cta_reject: 'No notifiche',
+
+  // WallpapersScreen
+  wallpapersTitle: 'SFONDI',
+  wallpapersSubtitle: 'Scarica e Condividi',
+  download: 'Scarica',
+  wallpaperShareMessage: 'Guarda questo sfondo GTA VI',
+  
+  // AdDownloadButton
+  initializing: 'Inizializzazione...',
+  loading: 'Caricamento...',
+  viewingAd: 'Visualizzazione pubblicità...',
+  downloading: 'Download...',
+  
+  // DownloadProgress
+  downloadingWallpaper: 'Download sfondo...',
+  
+  // useDownload
+  downloadingTitle: 'Download...',
+  savingWallpaper: 'Salvataggio sfondo nella galleria...',
+  savingImage: 'Salvataggio immagine nella galleria...',
+  downloadError: 'Impossibile scaricare lo sfondo. Riprova.',
+  downloadErrorGeneric: 'Errore di download',
+  
+  // WallpaperScreen specific
+  fondos: 'SFONDI',
+  autoria: 'Autore',
+  swipeForMore: 'Scorri per altro'
 };
 

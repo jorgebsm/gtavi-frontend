@@ -152,7 +152,7 @@ const MoreScreen = () => {
 
         {/* Información adicional */}
         <View style={styles.footer}>
-          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.1.2</Text>
+          <Text style={styles.footerSubtext}>GTA VI Countdown — App v2.3.0</Text>
         </View>
       </ScrollView>
 

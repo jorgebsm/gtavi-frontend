@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAds } from '../contexts/AdContext';
+import { useLocalization } from '../hooks/useLocalization';
 
 const AdDownloadButton = ({ 
   wallpaper, 
@@ -12,23 +13,24 @@ const AdDownloadButton = ({
 }) => {
   const { isRewardedAdLoaded, isLibraryLoaded, showRewardedAd } = useAds();
   const [isShowingAd, setIsShowingAd] = useState(false);
+  const { translations } = useLocalization();
 
   const handleAdDownload = async () => {
     try {
       if (!isLibraryLoaded) {
         Alert.alert(
-          'Sistema de anuncios no disponible',
-          'El sistema de anuncios aún se está inicializando. Por favor, espera un momento.',
-          [{ text: 'OK' }]
+          translations.adSystemNotAvailable || 'Sistema de anuncios no disponible',
+          translations.adSystemInitializing || 'El sistema de anuncios aún se está inicializando. Por favor, espera un momento.',
+          [{ text: translations.ok || 'OK' }]
         );
         return;
       }
 
       if (!isRewardedAdLoaded) {
         Alert.alert(
-          'Anuncio no disponible',
-          'El anuncio aún se está cargando. Por favor, espera un momento e inténtalo de nuevo.',
-          [{ text: 'OK' }]
+          translations.adNotAvailable || 'Anuncio no disponible',
+          translations.adStillLoading || 'El anuncio aún se está cargando. Por favor, espera un momento e inténtalo de nuevo.',
+          [{ text: translations.ok || 'OK' }]
         );
         return;
       }
@@ -52,17 +54,17 @@ const AdDownloadButton = ({
         // No necesitamos hacer nada aquí, solo esperar a que el anuncio termine
       } else {
         Alert.alert(
-          'Anuncio no disponible',
-          'No se pudo mostrar el anuncio. Inténtalo de nuevo más tarde.',
-          [{ text: 'OK' }]
+          translations.adNotAvailable || 'Anuncio no disponible',
+          translations.adShowError || 'No se pudo mostrar el anuncio. Inténtalo de nuevo más tarde.',
+          [{ text: translations.ok || 'OK' }]
         );
       }
     } catch (error) {
       console.error('❌ Error con anuncio recompensado:', error);
       Alert.alert(
-        'Error',
-        'Ocurrió un error al mostrar el anuncio. Inténtalo de nuevo.',
-        [{ text: 'OK' }]
+        translations.error || 'Error',
+        translations.adUnexpectedError || 'Ocurrió un error al mostrar el anuncio. Inténtalo de nuevo.',
+        [{ text: translations.ok || 'OK' }]
       );
     } finally {
       setIsShowingAd(false);
@@ -74,7 +76,7 @@ const AdDownloadButton = ({
     if (isDownloading || isShowingAd) {
       return {
         icon: 'hourglass',
-        text: isShowingAd ? 'Viendo anuncio...' : 'Descargando...',
+        text: isShowingAd ? translations.viewingAd : translations.downloading,
         disabled: true,
         backgroundColor: '#666',
       };
@@ -83,7 +85,7 @@ const AdDownloadButton = ({
     if (!isLibraryLoaded) {
       return {
         icon: 'hourglass',
-        text: 'Inicializando...',
+        text: translations.initializing,
         disabled: true,
         backgroundColor: '#999',
       };
@@ -92,7 +94,7 @@ const AdDownloadButton = ({
     if (!isRewardedAdLoaded) {
       return {
         icon: 'download',
-        text: 'Cargando anuncio...',
+        text: translations.loading,
         disabled: true,
         backgroundColor: '#999',
       };
@@ -100,7 +102,7 @@ const AdDownloadButton = ({
 
     return {
       icon: 'download',
-      text: 'Descargar',
+      text: translations.download,
       disabled: false,
       backgroundColor: '#ff6b35',
     };
