@@ -144,7 +144,7 @@ export default function WallpapersScreen() {
         response: error.response
       });
       
-      setError(`Error al cargar los wallpapers: ${error.message}`);
+      // setError(`Error al cargar los wallpapers: ${error.message}`);
       
       // Fallback a datos estáticos en caso de error
       // setWallpapersData([
