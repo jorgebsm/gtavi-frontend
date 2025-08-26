@@ -46,7 +46,7 @@ export function useInitNotifications(setNotifStatus) {
           await registerDevice(playerId);
         } else {
           setNotifStatus && setNotifStatus({ status: 'error', message: 'No se pudo obtener playerId', playerId: '' });
-          console.error('No se pudo obtener playerId');
+          // console.error('No se pudo obtener playerId');
         }
       } catch (err) {
         setNotifStatus && setNotifStatus({ status: 'error', message: 'Error obteniendo playerId', playerId: '' });

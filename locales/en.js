@@ -114,5 +114,7 @@ export default {
   autoria: 'Author',
   swipeForMore: 'Swipe for more',
   loadingImage: 'Loading image...',
+  adsEnabled: 'Ads enabled',
+  adsDisabled: 'Ads disabled',
 };
 // Note: onboarding keys are optional and defaulted in code if missing

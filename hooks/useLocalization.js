@@ -151,7 +151,9 @@ export const useLocalization = () => {
       fondos: translate('fondos'),
       autoria: translate('autoria'),
       swipeForMore: translate('swipeForMore'),
-      loadingImage: translate('loadingImage')
+      loadingImage: translate('loadingImage'),
+      adsEnabled: translate('adsEnabled'),
+      adsDisabled: translate('adsDisabled')
     }
   };
 };

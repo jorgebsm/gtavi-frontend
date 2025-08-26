@@ -9,14 +9,22 @@ const AdDownloadButton = ({
   onDownload, 
   isDownloading, 
   style, 
-  textStyle 
+  textStyle,
+  adsEnabled = true // Nuevo parámetro para habilitar/deshabilitar anuncios
 }) => {
   const { isRewardedAdLoaded, isLibraryLoaded, showRewardedAd } = useAds();
   const [isShowingAd, setIsShowingAd] = useState(false);
   const { translations } = useLocalization();
 
+  // Debug: verificar el valor recibido
   const handleAdDownload = async () => {
     try {
+      // Si los anuncios están deshabilitados, proceder directamente con la descarga
+      if (!adsEnabled) {
+        await onDownload(wallpaper);
+        return;
+      }
+
       if (!isLibraryLoaded) {
         Alert.alert(
           translations.adSystemNotAvailable || 'Sistema de anuncios no disponible',

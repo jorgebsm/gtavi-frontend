@@ -114,5 +114,7 @@ export default {
   autoria: 'Autoría',
   swipeForMore: 'Desliza para ver más',
   loadingImage: 'Cargando imagen...',
+  adsEnabled: 'Anuncios habilitados',
+  adsDisabled: 'Anuncios deshabilitados',
 };
 // Nota: claves de onboarding se consumen con defaults en el código si faltan

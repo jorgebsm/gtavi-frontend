@@ -1,14 +1,14 @@
 // Feature flags centralizados
-// Cambia ONBOARDING_ENABLED a true para activar el onboarding
+// Cambia ONBOARDING a true para activar el onboarding
 export const FEATURE_FLAGS = {
-  ONBOARDING_ENABLED: false,
+  ONBOARDING: false,
   ONBOARDING_REPROMPT_DAYS: 7
 };
 
 let remoteOnboardingEnabled = null;
 
 export const isOnboardingEnabled = () => {
-  if (remoteOnboardingEnabled === null) return FEATURE_FLAGS.ONBOARDING_ENABLED === true;
+  if (remoteOnboardingEnabled === null) return FEATURE_FLAGS.ONBOARDING === true;
   return remoteOnboardingEnabled === true;
 };
 

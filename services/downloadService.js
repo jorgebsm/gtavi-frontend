@@ -87,7 +87,7 @@ class DownloadService {
           };
         }
       } catch (error) {
-        throw new Error(`Error procesando imagen: ${error.message}`);
+        throw new Error(`Error processing image: ${error.message}`);
       }
     } catch (error) {
       
@@ -157,13 +157,13 @@ class DownloadService {
           asset
         };
       } else {
-        throw new Error(`Error en la descarga: ${downloadResult.status}`);
+        throw new Error(`Download error: ${downloadResult.status}`);
       }
     } catch (error) {
       console.error('Error downloading image:', error);
       return {
         success: false,
-        message: 'Error al descargar la imagen',
+        message: 'Error downloading image',
         error: error.message
       };
     }

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useLocalization } from '../hooks/useLocalization';
 import { useDownload } from '../hooks/useDownload';
+import { useConfig } from '../hooks/useConfig';
 import DownloadProgress from '../components/DownloadProgress';
 import SuccessAnimation from '../components/SuccessAnimation';
 import AdDownloadButton from '../components/AdDownloadButton';
@@ -89,7 +90,10 @@ export default function WallpapersScreen() {
   const { translations, isRTL } = useLocalization();
   const { getBackgroundFor } = useBackgrounds();
   const { downloadWallpaper, isDownloading, downloadProgress, showSuccessAnimation } = useDownload();
+  const { isLoading: configLoading, getAdsEnabled } = useConfig();
   
+  // Estado para la configuración de anuncios
+  const [adsEnabled, setAdsEnabled] = useState(true);
   const { height: screenHeight } = Dimensions.get('window');
   const isSmall = screenHeight < 730;
   const CARD_HEIGHT = Math.round(screenHeight * (isSmall ? 0.65 : 0.70));
@@ -111,6 +115,19 @@ export default function WallpapersScreen() {
   useEffect(() => {
     loadWallpapers();
   }, []);
+
+  // Cargar configuración de anuncios
+  useEffect(() => {
+    const loadAdsConfig = async () => {
+      const adsConfig = await getAdsEnabled();
+      setAdsEnabled(adsConfig);
+    };
+    
+    // Solo cargar cuando configLoading sea false
+    if (!configLoading) {
+      loadAdsConfig();
+    }
+  }, [configLoading]); // ← Removido getAdsEnabled del array de dependencias
 
   const loadWallpapers = async () => {
     try {
@@ -217,7 +234,7 @@ export default function WallpapersScreen() {
         
       } else {
         Alert.alert(
-          'Error en la descarga',
+          'Download error',
           result.message || 'No se pudo descargar el wallpaper. Inténtalo de nuevo.',
           [{ text: 'OK' }]
         );
@@ -265,6 +282,7 @@ export default function WallpapersScreen() {
               wallpaper={item}
               onDownload={handleDownload}
               isDownloading={isDownloading}
+              adsEnabled={adsEnabled}
             />
           </View>
         </TouchableOpacity>
@@ -654,5 +672,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Poppins_400Regular',
     color: '#ff6b35',
+  },
+  adsStatusContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  adsStatusText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'center',
   },
 });
