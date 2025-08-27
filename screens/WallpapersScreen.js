@@ -99,6 +99,9 @@ export default function WallpapersScreen() {
   const CARD_HEIGHT = Math.round(screenHeight * (isSmall ? 0.65 : 0.70));
   const IMAGE_HEIGHT = isSmall ? Math.round(screenHeight * 0.36) : 410;
 
+  // Estado para el índice actual del scroll horizontal
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
   // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -177,6 +180,124 @@ export default function WallpapersScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Función para manejar el cambio de página en el scroll horizontal
+  const handlePageChange = (event) => {
+    const contentOffset = event.nativeEvent.contentOffset.x;
+    const pageIndex = Math.round(contentOffset / (screenWidth - 40));
+    setCurrentPageIndex(pageIndex);
+  };
+
+  // Función para renderizar los indicadores de página
+  const renderPageIndicators = () => {
+    const totalPages = wallpapersData.length;
+    if (totalPages === 0) return null;
+
+    // Siempre mostrar 5 indicadores
+    const indicators = [];
+    const maxVisibleIndicators = 5;
+    
+    // Calcular qué indicadores mostrar basado en la posición actual
+    let visibleIndicators = [];
+    
+    if (totalPages <= maxVisibleIndicators) {
+      // Si hay 5 o menos páginas, mostrar todas
+      visibleIndicators = Array.from({ length: totalPages }, (_, i) => i);
+    } else {
+      // Si hay más de 5 páginas, aplicar lógica de carrusel infinito
+      if (currentPageIndex < 3) {
+        // Páginas 1, 2, 3: mostrar posiciones 1, 2, 3, 4, 5
+        visibleIndicators = [0, 1, 2, 3, 4];
+      } else if (currentPageIndex >= totalPages - 2) {
+        // Últimas 2 páginas: mostrar posiciones 1, 2, 3, 4, 5
+        // Pero el indicador activo debe estar en la posición correcta
+        if (currentPageIndex === totalPages - 2) {
+          // Penúltimo elemento: activo en posición 4
+          visibleIndicators = [0, 1, 2, 3, 4];
+        } else {
+          // Último elemento: activo en posición 5
+          visibleIndicators = [0, 1, 2, 3, 4];
+        }
+      } else {
+        // Páginas intermedias: mostrar indicadores que se mueven
+        // El indicador activo siempre debe estar en la posición 3 (centro)
+        // Los indicadores se mueven visualmente hacia la izquierda
+        
+        // Calcular qué indicadores mostrar para mantener el activo en el centro
+        const centerPosition = 2; // Posición 3 (índice 2) es el centro
+        
+        // Calcular el rango de indicadores a mostrar
+        let startIndex = currentPageIndex - centerPosition;
+        let endIndex = startIndex + maxVisibleIndicators - 1;
+        
+        // Asegurar que no nos salgamos de los límites
+        if (startIndex < 0) {
+          startIndex = 0;
+          endIndex = maxVisibleIndicators - 1;
+        } else if (endIndex >= totalPages) {
+          endIndex = totalPages - 1;
+          startIndex = Math.max(0, endIndex - maxVisibleIndicators + 1);
+        }
+        
+        // Generar el array de indicadores
+        visibleIndicators = [];
+        for (let i = startIndex; i <= endIndex; i++) {
+          visibleIndicators.push(i);
+        }
+        
+        // Asegurar que siempre tengamos exactamente 5 indicadores
+        while (visibleIndicators.length < maxVisibleIndicators) {
+          if (startIndex > 0) {
+            visibleIndicators.unshift(startIndex - 1);
+            startIndex--;
+          } else if (endIndex < totalPages - 1) {
+            visibleIndicators.push(endIndex + 1);
+            endIndex++;
+          }
+        }
+      }
+    }
+
+    // Crear los indicadores visuales
+    for (let i = 0; i < maxVisibleIndicators; i++) {
+      const indicatorIndex = visibleIndicators[i] || 0;
+      let isActive = false;
+      
+      // Determinar qué indicador visual debe estar activo
+      if (currentPageIndex < 3) {
+        // Páginas 1, 2, 3: activo en posición 1, 2, 3 respectivamente
+        isActive = (i === currentPageIndex);
+      } else if (currentPageIndex >= totalPages - 2) {
+        // Últimas páginas: activo en posición 4 o 5
+        if (currentPageIndex === totalPages - 2) {
+          // Penúltimo: activo en posición 4 (índice 3)
+          isActive = (i === 3);
+        } else {
+          // Último: activo en posición 5 (índice 4)
+          isActive = (i === 4);
+        }
+      } else {
+        // Páginas intermedias: activo siempre en posición 3 (centro)
+        isActive = (i === 2);
+      }
+      
+      indicators.push(
+        <View
+          key={i}
+          style={[
+            styles.pageIndicator,
+            isActive && styles.activePageIndicator,
+          ]}
+        />
+      );
+    }
+
+    return (
+      <View style={styles.pageIndicatorsContainer}>
+        {indicators}
+      </View>
+    );
   };
 
   const handleWallpaperPress = async (wallpaper) => {
@@ -387,7 +508,11 @@ export default function WallpapersScreen() {
               index,
             })}
             contentContainerStyle={styles.wallpapersContent}
+            onMomentumScrollEnd={handlePageChange}
           />
+          
+          {/* Indicadores de página */}
+          {renderPageIndicators()}
         </View>
       </View>
     </View>
@@ -683,5 +808,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Poppins_400Regular',
     textAlign: 'center',
+  },
+  // Estilos para los indicadores de página
+  pageIndicatorsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  pageIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 4,
+  },
+  activePageIndicator: {
+    backgroundColor: '#ff6b35',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  hiddenPageIndicator: {
+    opacity: 0.1,
   },
 });
