@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Dimensions, Share, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Dimensions, Share, Alert, ActivityIndicator, Animated, Easing } from 'react-native';
 import { useBackgrounds } from '../contexts/BackgroundContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
@@ -12,28 +12,23 @@ import SuccessAnimation from '../components/SuccessAnimation';
 import AdDownloadButton from '../components/AdDownloadButton';
 import { imagesService } from '../services/api';
 import { t } from '../utils/i18n';
-// import admobService from '../services/admobService';
 
-const { width: screenWidth } = Dimensions.get('window');
+// ------- Constantes de layout -------
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-// Componente de imagen mejorado que maneja el estado de carga
+// Indicadores (ventana de 5 puntos)
+const VISIBLE_DOTS = 5;
+const DOT_GAP = 8;                 // margen horizontal entre puntos (4 a cada lado, total 8)
+const DOT_INACTIVE = 8;            // diámetro punto inactivo
+const DOT_ACTIVE = 12;             // diámetro punto activo
+const STEP = DOT_ACTIVE + DOT_GAP; // paso constante de la “pista” (track)
+const ANIM_MS = 220;               // duración animación desplazamiento
+
+// ---------- Componente imagen (sin cambios de lógica) ----------
 const WallpaperImage = ({ source, style, defaultSource }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const { translations } = useLocalization();
-
-  // useEffect(() => {
-  //   // Timeout para evitar que la imagen se quede cargando indefinidamente
-  //   const timeoutId = setTimeout(() => {
-  //     if (isLoading) {
-  //       console.log('⏰ Timeout de carga de imagen alcanzado, usando fallback');
-  //       setIsLoading(false);
-  //       setHasError(true);
-  //     }
-  //   }, 10000); // 10 segundos de timeout
-
-  //   return () => clearTimeout(timeoutId);
-  // }, [isLoading]);
 
   const handleLoadStart = () => {
     setIsLoading(true);
@@ -45,7 +40,6 @@ const WallpaperImage = ({ source, style, defaultSource }) => {
   };
 
   const handleError = () => {
-    // console.log('❌ Error cargando imagen, usando fallback');
     setIsLoading(false);
     setHasError(true);
   };
@@ -60,20 +54,15 @@ const WallpaperImage = ({ source, style, defaultSource }) => {
         onLoadStart={handleLoadStart}
         onLoadEnd={handleLoadEnd}
         onError={handleError}
-        // Propiedades adicionales para mejorar la carga
         fadeDuration={300}
-        progressiveRenderingEnabled={true}
+        progressiveRenderingEnabled
       />
-      
-      {/* Indicador de carga */}
       {isLoading && (
         <View style={styles.imageLoadingContainer}>
           <ActivityIndicator size="large" color="#ff6b35" />
           <Text style={styles.imageLoadingText}>{translations.loadingImage || 'Cargando imagen...'}</Text>
         </View>
       )}
-      
-      {/* Imagen de fallback en caso de error */}
       {hasError && (
         <Image 
           source={defaultSource}
@@ -86,75 +75,59 @@ const WallpaperImage = ({ source, style, defaultSource }) => {
 };
 
 export default function WallpapersScreen() {
-  // Hook de localización
   const { translations, isRTL } = useLocalization();
   const { getBackgroundFor } = useBackgrounds();
   const { downloadWallpaper, isDownloading, downloadProgress, showSuccessAnimation } = useDownload();
   const { isLoading: configLoading, getAdsEnabled } = useConfig();
-  
-  // Estado para la configuración de anuncios
-  const [adsEnabled, setAdsEnabled] = useState(true);
-  const { height: screenHeight } = Dimensions.get('window');
+
   const isSmall = screenHeight < 730;
   const CARD_HEIGHT = Math.round(screenHeight * (isSmall ? 0.65 : 0.70));
-  const IMAGE_HEIGHT = isSmall ? Math.round(screenHeight * 0.36) : 410;
 
-  // Estado para el índice actual del scroll horizontal
+  const [adsEnabled, setAdsEnabled] = useState(true);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  // Cargar fuentes personalizadas
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
 
-  // Estado para los datos dinámicos de wallpapers
   const [wallpapersData, setWallpapersData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar datos de wallpapers desde la API
+  // ---------- Animación del indicador deslizante ----------
+  const windowStart = useRef(new Animated.Value(0)).current; // índice de inicio de ventana (0..total - VISIBLE_DOTS)
+
+  // Helper clamp
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+  // Cargar wallpapers
   useEffect(() => {
     loadWallpapers();
   }, []);
 
-  // Cargar configuración de anuncios
+  // Ads config
   useEffect(() => {
     const loadAdsConfig = async () => {
       const adsConfig = await getAdsEnabled();
       setAdsEnabled(adsConfig);
     };
-    
-    // Solo cargar cuando configLoading sea false
     if (!configLoading) {
       loadAdsConfig();
     }
-  }, [configLoading]); // ← Removido getAdsEnabled del array de dependencias
+  }, [configLoading]);
 
   const loadWallpapers = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
       const apiResponse = await imagesService.getAll();
-      
       const transformedData = imagesService.transformApiDataToWallpapers(apiResponse);
-      
       if (transformedData.length > 0) {
         setWallpapersData(transformedData);
       } else {
-        console.warn('⚠️ No se obtuvieron wallpapers de la API, usando fallback');
-        // setWallpapersData([
-        //   {
-        //     id: '1',
-        //     title: 'GTA VI Wallpaper 1',
-        //     image: require('../assets/backgrounds/1.jpg'),
-        //     imageUrl: 'https://images.unsplash.com/1.jpg',
-        //     resolution: '1920x1080',
-        //     author: 'Rockstar Games'
-        //   }
-        // ]);
+        console.warn('⚠️ No se obtuvieron wallpapers de la API');
       }
     } catch (error) {
       console.error('❌ Error cargando wallpapers:', error);
@@ -163,210 +136,105 @@ export default function WallpapersScreen() {
         stack: error.stack,
         response: error.response
       });
-      
       // setError(`Error al cargar los wallpapers: ${error.message}`);
-      
-      // Fallback a datos estáticos en caso de error
-      // setWallpapersData([
-      //   {
-      //     id: '1',
-      //     title: 'GTA VI Wallpaper 1',
-      //     image: require('../assets/backgrounds/1.jpg'),
-      //     imageUrl: 'https://images.unsplash.com/1.jpg',
-      //     resolution: '1920x1080',
-      //     author: 'Rockstar Games'
-      //   }
-      // ]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Función para manejar el cambio de página en el scroll horizontal
+  // Índice al terminar el paginado
   const handlePageChange = (event) => {
     const contentOffset = event.nativeEvent.contentOffset.x;
     const pageIndex = Math.round(contentOffset / (screenWidth - 40));
     setCurrentPageIndex(pageIndex);
   };
 
-  // Función para renderizar los indicadores de página
+  // --- ANIMACIÓN: mover la “ventana” cuando cambia currentPageIndex ---
+  useEffect(() => {
+    const total = wallpapersData.length;
+    if (total <= 0) return;
+
+    // Si hay <= 5 páginas, la ventana siempre es 0
+    if (total <= VISIBLE_DOTS) {
+      Animated.timing(windowStart, {
+        toValue: 0,
+        duration: ANIM_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+      return;
+    }
+
+    // A partir del índice 3 (0-based), centramos el activo (posición visual 3 = idx 2)
+    const targetStart = clamp(currentPageIndex - 2, 0, total - VISIBLE_DOTS);
+
+    Animated.timing(windowStart, {
+      toValue: targetStart,
+      duration: ANIM_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [currentPageIndex, wallpapersData.length]);
+
+  // Indicadores de página (ANIMADOS)
   const renderPageIndicators = () => {
     const totalPages = wallpapersData.length;
     if (totalPages === 0) return null;
 
-    // Siempre mostrar 5 indicadores
-    const indicators = [];
-    const maxVisibleIndicators = 5;
-    
-    // Calcular qué indicadores mostrar basado en la posición actual
-    let visibleIndicators = [];
-    
-    if (totalPages <= maxVisibleIndicators) {
-      // Si hay 5 o menos páginas, mostrar todas
-      visibleIndicators = Array.from({ length: totalPages }, (_, i) => i);
-    } else {
-      // Si hay más de 5 páginas, aplicar lógica de carrusel infinito
-      if (currentPageIndex < 3) {
-        // Páginas 1, 2, 3: mostrar posiciones 1, 2, 3, 4, 5
-        visibleIndicators = [0, 1, 2, 3, 4];
-      } else if (currentPageIndex >= totalPages - 2) {
-        // Últimas 2 páginas: mostrar posiciones 1, 2, 3, 4, 5
-        // Pero el indicador activo debe estar en la posición correcta
-        if (currentPageIndex === totalPages - 2) {
-          // Penúltimo elemento: activo en posición 4
-          visibleIndicators = [0, 1, 2, 3, 4];
-        } else {
-          // Último elemento: activo en posición 5
-          visibleIndicators = [0, 1, 2, 3, 4];
-        }
-      } else {
-        // Páginas intermedias: mostrar indicadores que se mueven
-        // El indicador activo siempre debe estar en la posición 3 (centro)
-        // Los indicadores se mueven visualmente hacia la izquierda
-        
-        // Calcular qué indicadores mostrar para mantener el activo en el centro
-        const centerPosition = 2; // Posición 3 (índice 2) es el centro
-        
-        // Calcular el rango de indicadores a mostrar
-        let startIndex = currentPageIndex - centerPosition;
-        let endIndex = startIndex + maxVisibleIndicators - 1;
-        
-        // Asegurar que no nos salgamos de los límites
-        if (startIndex < 0) {
-          startIndex = 0;
-          endIndex = maxVisibleIndicators - 1;
-        } else if (endIndex >= totalPages) {
-          endIndex = totalPages - 1;
-          startIndex = Math.max(0, endIndex - maxVisibleIndicators + 1);
-        }
-        
-        // Generar el array de indicadores
-        visibleIndicators = [];
-        for (let i = startIndex; i <= endIndex; i++) {
-          visibleIndicators.push(i);
-        }
-        
-        // Asegurar que siempre tengamos exactamente 5 indicadores
-        while (visibleIndicators.length < maxVisibleIndicators) {
-          if (startIndex > 0) {
-            visibleIndicators.unshift(startIndex - 1);
-            startIndex--;
-          } else if (endIndex < totalPages - 1) {
-            visibleIndicators.push(endIndex + 1);
-            endIndex++;
-          }
-        }
-      }
-    }
+    // Ancho del viewport para 5 puntos (5 slots - último no suma gap)
+    const viewportWidth = VISIBLE_DOTS * STEP - DOT_GAP;
 
-    // Crear los indicadores visuales
-    for (let i = 0; i < maxVisibleIndicators; i++) {
-      const indicatorIndex = visibleIndicators[i] || 0;
-      let isActive = false;
-      
-      // Determinar qué indicador visual debe estar activo
-      if (currentPageIndex < 3) {
-        // Páginas 1, 2, 3: activo en posición 1, 2, 3 respectivamente
-        isActive = (i === currentPageIndex);
-      } else if (currentPageIndex >= totalPages - 2) {
-        // Últimas páginas: activo en posición 4 o 5
-        if (currentPageIndex === totalPages - 2) {
-          // Penúltimo: activo en posición 4 (índice 3)
-          isActive = (i === 3);
-        } else {
-          // Último: activo en posición 5 (índice 4)
-          isActive = (i === 4);
-        }
-      } else {
-        // Páginas intermedias: activo siempre en posición 3 (centro)
-        isActive = (i === 2);
-      }
-      
-      indicators.push(
+    // Transform animada: -windowStart * STEP
+    const translateX = Animated.multiply(windowStart, -STEP);
+
+    // Renderiza TODOS los puntos; el viewport muestra solo 5
+    const dots = Array.from({ length: totalPages }, (_, i) => {
+      const isActive = i === currentPageIndex;
+      return (
         <View
-          key={i}
-          style={[
-            styles.pageIndicator,
-            isActive && styles.activePageIndicator,
-          ]}
-        />
+          key={`dot-${i}`}
+          style={styles.dotSlot}
+          accessible
+          accessibilityLabel={`Página ${i + 1} de ${totalPages}${isActive ? ', actual' : ''}`}
+        >
+          <View
+            style={[
+              styles.dotBase,
+              isActive ? styles.dotActive : styles.dotInactive,
+              // El círculo cambia de tamaño, pero el slot mantiene layout estable
+              { width: isActive ? DOT_ACTIVE : DOT_INACTIVE, height: isActive ? DOT_ACTIVE : DOT_INACTIVE, borderRadius: (isActive ? DOT_ACTIVE : DOT_INACTIVE) / 2 },
+            ]}
+          />
+        </View>
       );
-    }
+    });
 
     return (
-      <View style={styles.pageIndicatorsContainer}>
-        {indicators}
+      <View style={[styles.pageIndicatorsViewport, { width: viewportWidth }]}>
+        <Animated.View style={[styles.pageIndicatorsTrack, { transform: [{ translateX }] }]}>
+          {dots}
+        </Animated.View>
       </View>
     );
-  };
-
-  const handleWallpaperPress = async (wallpaper) => {
-    try {
-      // Mostrar opciones: descargar o compartir
-      Alert.alert(
-        wallpaper.title,
-        '¿Qué te gustaría hacer con este wallpaper?',
-        [
-          {
-            text: 'Cancelar',
-            style: 'cancel',
-          },
-          {
-            text: 'Compartir',
-            onPress: async () => {
-              try {
-                await Share.share({
-                  message: `${translations.wallpaperShareMessage || 'Compartir wallpaper'}: ${wallpaper.title}`,
-                  title: wallpaper.title
-                });
-              } catch (error) {
-                console.error('Error sharing wallpaper:', error);
-              }
-            },
-          },
-          {
-            text: 'Descargar',
-            onPress: async () => {
-              await handleDownload(wallpaper);
-            },
-            style: 'default',
-          },
-        ]
-      );
-    } catch (error) {
-      console.error('Error handling wallpaper press:', error);
-    }
   };
 
   const handleDownload = async (wallpaper) => {
     try {
       const result = await downloadWallpaper(wallpaper);
-      
       if (result.success) {
-        // Incrementar contador de descargas en la API
         try {
-          if (wallpaper.id && wallpaper.id !== '1') { // No incrementar para el fallback
+          if (wallpaper.id && wallpaper.id !== '1') {
             await imagesService.incrementDownloadCount(wallpaper.id);
           }
         } catch (apiError) {
           console.error('Error incrementando contador de descargas:', apiError);
         }
-        
-        
       } else {
-        Alert.alert(
-          'Download error',
-          result.message || 'No se pudo descargar el wallpaper. Inténtalo de nuevo.',
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Download error', result.message || 'No se pudo descargar el wallpaper. Inténtalo de nuevo.', [{ text: 'OK' }]);
       }
     } catch (error) {
       console.error('Error en handleDownload:', error);
-      Alert.alert(
-        'Error',
-        'Ocurrió un error inesperado al descargar el wallpaper.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Error', 'Ocurrió un error inesperado al descargar el wallpaper.', [{ text: 'OK' }]);
     }
   };
 
@@ -375,15 +243,12 @@ export default function WallpapersScreen() {
       <View style={styles.wallpaperContainer}>
         <TouchableOpacity 
           style={[styles.wallpaperCard, { height: CARD_HEIGHT }]}
-          // onPress={() => handleWallpaperPress(item)}
           activeOpacity={0.8}
         >
-          {/* Imagen del wallpaper */}
           <View style={styles.imageContainer}>
             <WallpaperImage
               source={item.imageUrl ? { uri: item.imageUrl } : item.image} 
               style={[styles.wallpaperImage, { height: CARD_HEIGHT }]}
-              // defaultSource={require('../assets/backgrounds/1.jpg')}
             />
             <View style={styles.downloadOverlay}>
               <Ionicons name="download-outline" size={32} color="#ff6b35" />
@@ -397,8 +262,6 @@ export default function WallpapersScreen() {
                 {t('autoria')}: <Text style={styles.authorBold}>{item.author}</Text>
               </Text>
             </View>
-            
-            {/* Botón de descarga con anuncio recompensado */}
             <AdDownloadButton
               wallpaper={item}
               onDownload={handleDownload}
@@ -411,7 +274,6 @@ export default function WallpapersScreen() {
     );
   };
 
-  // Mostrar loading mientras se cargan las fuentes
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
@@ -420,20 +282,6 @@ export default function WallpapersScreen() {
     );
   }
 
-  // Mostrar indicador de scroll
-  // if (isLoading) {
-  //   return (
-  //     <View style={styles.container}>
-  //       <StatusBar style="light" />
-  //       <View style={styles.loadingContainer}>
-  //         <ActivityIndicator size="large" color="#00ff00" />
-  //         <Text style={styles.loadingText}>Cargando wallpapers...</Text>
-  //       </View>
-  //     </View>
-  //   );
-  // }
-
-  // Mostrar error si no se pudieron cargar los datos
   if (error && wallpapersData.length === 0) {
     return (
       <View style={styles.container}>
@@ -451,20 +299,11 @@ export default function WallpapersScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      
-             {/* Componente de progreso de descarga */}
-       <DownloadProgress 
-         progress={downloadProgress} 
-         isVisible={isDownloading} 
-       />
-       
-       {/* Componente de animación de éxito */}
-       <SuccessAnimation isVisible={showSuccessAnimation} />
-      
+      <DownloadProgress progress={downloadProgress} isVisible={isDownloading} />
+      <SuccessAnimation isVisible={showSuccessAnimation} />
 
-      {/* Gradiente de fondo */}
+      {/* Fondo */}
       <View style={styles.backgroundGradient} />
-      {/* Imagen de fondo */}
       {getBackgroundFor('Wallpapers') && (
         <Image
           source={getBackgroundFor('Wallpapers')}
@@ -472,24 +311,19 @@ export default function WallpapersScreen() {
           resizeMode="cover"
         />
       )}
-      {/* Contenido principal */}
+
+      {/* Contenido */}
       <View style={[styles.content, isSmall && styles.contentSmall]}>
-        {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, isRTL && styles.rtlText]}>{t('fondos')}</Text>
         </View>
 
-        {/* Indicador de scroll */}
         <View style={[styles.scrollIndicator, isRTL && styles.rtlContainer]}>
           <Text style={[styles.scrollText, isRTL && styles.rtlText]}>{t('swipeForMore')}</Text>
-          <Ionicons 
-            name={isRTL ? "chevron-back" : "chevron-forward"} 
-            size={20} 
-            color="#ff6b35" 
-          />
+          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#ff6b35" />
         </View>
 
-        {/* Lista de wallpapers con paginación */}
+        {/* Lista + Indicadores */}
         <View style={styles.wallpapersWrapper}>
           <FlatList
             data={wallpapersData}
@@ -510,8 +344,8 @@ export default function WallpapersScreen() {
             contentContainerStyle={styles.wallpapersContent}
             onMomentumScrollEnd={handlePageChange}
           />
-          
-          {/* Indicadores de página */}
+
+          {/* Indicadores con animación de “desplazamiento” */}
           {renderPageIndicators()}
         </View>
       </View>
@@ -520,317 +354,81 @@ export default function WallpapersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
-    opacity: 0.25,
-  },
-  content: {
-    flex: 1,
-    zIndex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 20,
-  },
-  contentSmall: {
-    paddingTop: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000000',
-  },
-  loadingText: {
-    color: '#fff',
-    fontSize: 18,
-    fontFamily: 'Poppins_400Regular',
+  // Base
+  container: { flex: 1, backgroundColor: '#000000' },
+  backgroundGradient: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#000000' },
+  backgroundImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.25 },
+  content: { flex: 1, zIndex: 1, paddingTop: 60, paddingHorizontal: 20 },
+  contentSmall: { paddingTop: 40 },
+
+  // Loading / error
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' },
+  loadingText: { color: '#fff', fontSize: 18, fontFamily: 'Poppins_400Regular', marginTop: 20, textAlign: 'center' },
+  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000', paddingHorizontal: 20 },
+  errorText: { color: '#ff6b35', fontSize: 18, fontFamily: 'Poppins_400Regular', textAlign: 'center', marginBottom: 30 },
+  retryButton: { backgroundColor: '#00ff00', paddingHorizontal: 30, paddingVertical: 15, borderRadius: 25 },
+  retryButtonText: { color: '#000', fontSize: 16, fontFamily: 'Poppins_600SemiBold' },
+
+  // Header
+  header: { alignItems: 'center', marginBottom: 20 },
+  headerTitle: { fontSize: 32, fontFamily: 'Poppins_700Bold', color: '#ff6b35', marginBottom: 5 },
+
+  // Indicador de scroll
+  scrollIndicator: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10, backgroundColor: 'rgba(0,0,0,0.5)', paddingVertical: 8, paddingHorizontal: 16 },
+  scrollText: { fontSize: 14, fontFamily: 'Poppins_400Regular', color: '#fff', marginHorizontal: 10 },
+
+  // Lista
+  wallpapersWrapper: {},
+  wallpapersContent: { alignItems: 'center', paddingLeft: 0, paddingRight: 0 },
+  wallpaperContainer: { width: screenWidth - 40, alignSelf: 'center', marginTop: 0, marginHorizontal: 0 },
+  wallpaperCard: { backgroundColor: 'rgba(0,0,0,0.5)', overflow: 'hidden', width: screenWidth - 40, alignSelf: 'center' },
+  imageContainer: { position: 'relative' },
+  wallpaperImage: { width: '100%', backgroundColor: '#1a1a1a' },
+
+  downloadOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)', opacity: 0 },
+  downloadText: { fontSize: 14, fontFamily: 'Poppins_600SemiBold', color: '#ff6b35', marginTop: 8 },
+
+  resolutionBadge: { position: 'absolute', bottom: 20, left: 20, backgroundColor: 'rgba(0,0,0,0.8)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+  resolutionText: { fontSize: 12, fontFamily: 'Poppins_600SemiBold', color: '#fff' },
+
+  categoryBadge: { position: 'absolute', top: 10, right: 10, backgroundColor: 'rgba(255,107,53,0.9)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+  categoryText: { fontSize: 12, fontFamily: 'Poppins_400Regular', color: '#fff' },
+  authorBold: { fontFamily: 'Poppins_700Bold', fontWeight: 'bold' },
+
+  // Loading de imagen interna
+  imageLoadingContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1 },
+  imageLoadingText: { color: '#fff', fontSize: 14, fontFamily: 'Poppins_400Regular', marginTop: 10 },
+
+  // ----- Indicadores (viewport + track + slots) -----
+  pageIndicatorsViewport: {
+    alignSelf: 'center',
+    overflow: 'hidden',
     marginTop: 20,
-    textAlign: 'center',
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000000',
-    paddingHorizontal: 20,
-  },
-  errorText: {
-    color: '#ff6b35',
-    fontSize: 18,
-    fontFamily: 'Poppins_400Regular',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  retryButton: {
-    backgroundColor: '#00ff00',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
-  },
-  retryButtonText: {
-    color: '#000',
-    fontSize: 16,
-    fontFamily: 'Poppins_600SemiBold',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontFamily: 'Poppins_700Bold',
-    color: '#ff6b35',
-    marginBottom: 5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#fff',
-    letterSpacing: 2,
-  },
-  scrollIndicator: {
+  pageIndicatorsTrack: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 0,
-    borderWidth: 0,
-    borderColor: 'rgba(255, 107, 53, 0.3)',
   },
-  scrollText: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#fff',
-    marginHorizontal: 10,
-  },
-  wallpapersWrapper: {
-    // flex: 1,
-  },
-  wallpapersContent: {
+  // Cada "slot" ocupa el tamaño del punto activo (para paso constante) + gap a la derecha
+  dotSlot: {
+    width: DOT_ACTIVE,
+    height: DOT_ACTIVE,
+    marginRight: DOT_GAP,
     alignItems: 'center',
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
-  wallpaperCard: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    overflow: 'hidden',
-    width: screenWidth - 40,
-    // height dinámico por dispositivo en runtime (ver CARD_HEIGHT)
-    alignSelf: 'center',
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  wallpaperImage: {
-    width: '100%',
-    backgroundColor: '#1a1a1a',
-  },
-  downloadOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    opacity: 0,
   },
-  downloadText: {
-    fontSize: 14,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#ff6b35',
-    marginTop: 8,
+  dotBase: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
-  resolutionBadge: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+  dotInactive: {
+    // tamaño dinámico se setea inline (width/height)
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
-  resolutionText: {
-    fontSize: 12,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#fff',
-  },
-  categoryBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'rgba(255, 107, 53, 0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-     categoryText: {
-     fontSize: 12,
-     fontFamily: 'Poppins_400Regular',
-     color: '#fff',
-   },
-   authorBold: {
-     fontFamily: 'Poppins_700Bold',
-     fontWeight: 'bold',
-   },
-  wallpaperInfo: {
-    padding: 20,
-  },
-  wallpaperTitle: {
-    fontSize: 18,
-    fontFamily: 'Poppins_700Bold',
-    color: '#fff',
-    marginBottom: 5,
-  },
-  wallpaperCategory: {
-    fontSize: 12,
-    fontFamily: 'Poppins_600SemiBold',
-    color: '#ff6b35',
-    marginBottom: 8,
-  },
-  wallpaperResolution: {
-    fontSize: 12,
-    fontFamily: 'Poppins_400Regular',
-    color: '#ccc',
-    marginBottom: 8,
-  },
-  // Estilos RTL
-  rtlText: {
-    textAlign: 'right',
-    writingDirection: 'rtl',
-  },
-  rtlContainer: {
-    flexDirection: 'row-reverse',
+  dotActive: {
+    backgroundColor: '#ff6b35',
   },
 
-  wallpaperContainer: {
-    width: screenWidth - 40,
-    alignSelf: 'center',
-    marginTop: 0,
-    marginHorizontal: 0,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000000',
-  },
-  downloadButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: '#ff6b35',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    // height: 60,
-    // width: 150,
-  },
-  downloadButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontFamily: 'Poppins_600SemiBold',
-    marginLeft: 4,
-    padding: 8
-  },
-  downloadButtonDisabled: {
-    backgroundColor: '#666',
-    opacity: 0.7,
-  },
-  imageLoadingContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    zIndex: 1,
-  },
-  imageLoadingText: {
-    color: '#fff',
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    marginTop: 10,
-  },
-  adStatusContainer: {
-    backgroundColor: 'rgba(255, 107, 53, 0.2)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  adStatusText: {
-    fontSize: 12,
-    fontFamily: 'Poppins_400Regular',
-    color: '#ff6b35',
-  },
-  adsStatusContainer: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  adsStatusText: {
-    fontSize: 12,
-    fontFamily: 'Poppins_400Regular',
-    textAlign: 'center',
-  },
-  // Estilos para los indicadores de página
-  pageIndicatorsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  pageIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    marginHorizontal: 4,
-  },
-  activePageIndicator: {
-    backgroundColor: '#ff6b35',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  hiddenPageIndicator: {
-    opacity: 0.1,
-  },
+  // RTL helpers
+  rtlText: { textAlign: 'right', writingDirection: 'rtl' },
+  rtlContainer: { flexDirection: 'row-reverse' },
 });
