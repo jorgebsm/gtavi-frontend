@@ -18,7 +18,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Indicadores (ventana de 5 puntos)
 const VISIBLE_DOTS = 5;
-const DOT_GAP = 14;                 // margen horizontal entre puntos (4 a cada lado, total 8)
+const DOT_GAP = 12;                 // margen horizontal entre puntos (4 a cada lado, total 8)
 const DOT_INACTIVE = 8;            // diámetro punto inactivo
 const DOT_ACTIVE = 12;             // diámetro punto activo
 const STEP = DOT_ACTIVE + DOT_GAP; // paso constante de la "pista" (track)
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   viewIndicators: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     alignSelf: 'center',
-    paddingHorizontal: 32, // Espacio horizontal para los bordes
+    paddingHorizontal: 20, // Espacio horizontal para los bordes
     paddingVertical: 10,   // Espacio vertical arriba y abajo
     borderRadius: 40,      // Bordes redondeados
     marginTop: 10,         // Espacio desde arriba

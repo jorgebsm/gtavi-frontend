@@ -191,13 +191,13 @@ const styles = StyleSheet.create({
   },
   pageIndicators: {
     position: 'absolute',
-    right: 0,
+    right: 2.5,
     top: '50%',
     transform: [{ translateY: -50 }],
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 40,
-    paddingHorizontal: 4,
+    // backgroundColor: 'rgba(0,0,0,0.5)',
+    // borderRadius: 40,
+    // paddingHorizontal: 4,
   },
   indicator: {
     width: 8,
