@@ -1,223 +1,278 @@
 import { Platform } from 'react-native';
-import { getAdConfig } from '../config/adConfig';
-import { InterstitialAd } from 'react-native-google-mobile-ads';
+import mobileAds, {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 import { getAdIds } from '../config/admob';
+import admobService from './admobService';
 
 class AdService {
   constructor() {
     this.interstitialAd = null;
-    this.isAdLoading = false;
-    this.adCounter = 0;
-    this.lastAdShown = null;
-    
-    // Obtener configuración desde adConfig.js
-    const config = getAdConfig();
-    this.adConfig = {
-      // Probabilidades de mostrar anuncios entre pantallas
-      screenTransitionAds: {
-        'Home-Trailers': config.general.enabled ? 0.2 : 0.0,    // 20% o 0%
-        'Trailers-News': config.general.enabled ? 0.2 : 0.0,    // 20% o 0%
-        'News-Leaks': config.general.enabled ? 0.2 : 0.0,       // 20% o 0%
-        'Leaks-More': config.general.enabled ? 1.0 : 0.0,       // 100% o 0%
-      },
-      // Tiempo mínimo entre anuncios (en minutos)
-      minTimeBetweenAds: config.general.minTimeBetweenAds || 3,
-      // Máximo de anuncios por sesión
-      maxAdsPerSession: config.general.maxAdsPerSession || 5,
-    };
-    
-    // Log para confirmar configuración
-    // console.log('🚫 Configuración de anuncios:', {
-    //   enabled: config.general.enabled,
-    //   probabilities: this.adConfig.screenTransitionAds
-    // });
-    
-    // Inicializar anuncio intersticial
-    this.initializeInterstitialAd();
+    this.isLoading = false;
+    this.lastLoadTime = 0;
+    this.loadAttempts = 0;
+    this.maxLoadAttempts = 3;
+    this.fallbackMode = false;
+
+    // No llamar a initializeInterstitialAd aquí - se hará cuando se necesite
+    console.log('📱 AdService inicializado');
   }
 
-  // Inicializar el servicio de anuncios
+  // Inicializar el servicio de anuncios con error handling
   async initialize() {
     try {
+      // Usar el servicio de AdMob mejorado
+      const success = await admobService.initialize();
+      
+      if (!success && admobService.isInFallbackMode()) {
+        console.warn('⚠️ AdMob en modo fallback, ads deshabilitados');
+        this.fallbackMode = true;
+        return false;
+      }
+      
       if (Platform.OS === 'android') {
-        // Configuración para Android
         await this.initializeAndroidAds();
       } else if (Platform.OS === 'ios') {
-        // Configuración para iOS
         await this.initializeIOSAds();
       }
       
-      // console.log('✅ Servicio de anuncios inicializado correctamente');
+      console.log('✅ Servicio de anuncios inicializado correctamente');
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error inicializando anuncios:', error);
+      
+      // Activar modo fallback para errores críticos
+      if (this.isCriticalError(error)) {
+        this.fallbackMode = true;
+        console.warn('🚨 Error crítico detectado, activando modo fallback');
+      }
+      
+      return false;
+    }
+  }
+
+  // Verificar si es un error crítico que requiere fallback
+  isCriticalError(error) {
+    const criticalErrors = [
+      'JNI',
+      'native',
+      'CallVoidMethod',
+      'libreactnative.so',
+      'TurboModule'
+    ];
+    
+    return criticalErrors.some(keyword => 
+      error.message?.includes(keyword) || 
+      error.stack?.includes(keyword)
+    );
+  }
+
+  // Inicializar anuncios de Android con error handling
+  async initializeAndroidAds() {
+    try {
+      const adIds = getAdIds('android');
+      console.log('📱 Configurando anuncios para Android');
+      
+      // Verificar que los IDs sean válidos
+      if (!adIds.interstitial || adIds.interstitial.includes('xxxxxxxx')) {
+        throw new Error('IDs de anuncios no configurados para Android');
+      }
+      
       return true;
     } catch (error) {
-      // console.error('❌ Error inicializando anuncios:', error);
+      console.error('❌ Error configurando anuncios Android:', error);
       return false;
     }
   }
 
-  // Inicializar anuncio intersticial
-  initializeInterstitialAd() {
-    try {
-      // Obtener ID según plataforma y entorno
-      const adUnitId = getAdIds(Platform.OS).interstitial;
-      
-      this.interstitialAd = InterstitialAd.createForAdRequest(adUnitId, {
-        requestNonPersonalizedAdsOnly: true,
-      });
-      
-      // Configurar event listeners usando strings
-      this.interstitialAd.addAdEventListener('loaded', () => {
-        // console.log('✅ Anuncio intersticial cargado');
-        this.isAdLoading = false;
-      });
-      
-      this.interstitialAd.addAdEventListener('closed', () => {
-        // console.log('🔒 Anuncio intersticial cerrado');
-        this.isAdLoading = false;
-        // Recargar automáticamente
-        this.loadInterstitialAd();
-      });
-      
-      this.interstitialAd.addAdEventListener('error', (error) => {
-        // console.error('❌ Error en anuncio intersticial:', error);
-        this.isAdLoading = false;
-      });
-      
-      // console.log('📱 Anuncio intersticial inicializado para Android');
-    } catch (error) {
-      // console.error('❌ Error inicializando anuncio intersticial:', error);
-    }
-  }
-
-  // Inicializar anuncios para Android
-  async initializeAndroidAds() {
-    // Ya se inicializó en el constructor
-    // console.log('📱 Anuncios Android ya inicializados');
-  }
-
-  // Inicializar anuncios para iOS
+  // Inicializar anuncios de iOS con error handling
   async initializeIOSAds() {
-    // Aquí iría la inicialización de Google AdMob para iOS
-    // console.log('🍎 Inicializando anuncios para iOS');
-  }
-
-  // Determinar si se debe mostrar un anuncio
-  shouldShowAd(fromScreen, toScreen) {
-    const transitionKey = `${fromScreen}-${toScreen}`;
-    const probability = this.adConfig.screenTransitionAds[transitionKey];
-    
-    if (!probability) return false;
-    
-    // Verificar límites de anuncios
-    if (this.adCounter >= this.adConfig.maxAdsPerSession) {
-      // console.log('🚫 Límite de anuncios por sesión alcanzado');
+    try {
+      const adIds = getAdIds('ios');
+      console.log('📱 Configurando anuncios para iOS');
+      
+      // Verificar que los IDs sean válidos
+      if (!adIds.interstitial || adIds.interstitial.includes('xxxxxxxx')) {
+        throw new Error('IDs de anuncios no configurados para iOS');
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error configurando anuncios iOS:', error);
       return false;
     }
-    
-    // Verificar tiempo mínimo entre anuncios
-    if (this.lastAdShown) {
-      const timeSinceLastAd = Date.now() - this.lastAdShown;
-      const minTimeMs = this.adConfig.minTimeBetweenAds * 60 * 1000;
+  }
 
-      // console.log("timeSinceLastAd "+ timeSinceLastAd);
-      // console.log("minTimeMs "+ minTimeMs);
+  // Cargar anuncio intersticial con error handling robusto
+  async loadInterstitialAd() {
+    if (this.fallbackMode) {
+      console.warn('⚠️ Modo fallback activo, saltando carga de anuncios');
+      return false;
+    }
+
+    if (this.isLoading) {
+      console.log('⏳ Anuncio ya se está cargando...');
+      return false;
+    }
+
+    // Verificar límite de intentos
+    if (this.loadAttempts >= this.maxLoadAttempts) {
+      console.warn('⚠️ Máximo de intentos de carga alcanzado');
+      this.fallbackMode = true;
+      return false;
+    }
+
+    try {
+      this.isLoading = true;
+      this.loadAttempts++;
       
-      if (timeSinceLastAd < minTimeMs) {
-        // console.log('⏰ Muy pronto para mostrar otro anuncio');
+      console.log(`🔄 Cargando anuncio intersticial (intento ${this.loadAttempts})`);
+      
+      const adIds = getAdIds(Platform.OS);
+      const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : adIds.interstitial;
+      
+      // Crear nuevo anuncio
+      this.interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
+      
+      // Configurar listeners con error handling
+      const unsubscribeLoaded = this.interstitialAd.addAdEventListener(
+        AdEventType.LOADED,
+        () => {
+          console.log('✅ Anuncio intersticial cargado correctamente');
+          this.isLoading = false;
+          this.loadAttempts = 0; // Resetear contadores en éxito
+        }
+      );
+
+      const unsubscribeError = this.interstitialAd.addAdEventListener(
+        AdEventType.ERROR,
+        (error) => {
+          console.error('❌ Error cargando anuncio intersticial:', error);
+          this.isLoading = false;
+          this.handleAdError(error);
+        }
+      );
+
+      const unsubscribeClosed = this.interstitialAd.addAdEventListener(
+        AdEventType.CLOSED,
+        () => {
+          console.log('🔒 Anuncio intersticial cerrado');
+          this.interstitialAd = null;
+          unsubscribeLoaded();
+          unsubscribeError();
+          unsubscribeClosed();
+        }
+      );
+
+      // Cargar anuncio con timeout
+      const loadPromise = this.interstitialAd.load();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout cargando anuncio')), 15000)
+      );
+      
+      await Promise.race([loadPromise, timeoutPromise]);
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error en carga de anuncio:', error);
+      this.isLoading = false;
+      this.handleAdError(error);
+      return false;
+    }
+  }
+
+  // Manejar errores de anuncios
+  handleAdError(error) {
+    if (this.isCriticalError(error)) {
+      console.warn('🚨 Error crítico de anuncios, activando modo fallback');
+      this.fallbackMode = true;
+    }
+    
+    // Incrementar contador de intentos
+    this.loadAttempts++;
+    
+    // Limpiar anuncio fallido
+    if (this.interstitialAd) {
+      this.interstitialAd = null;
+    }
+  }
+
+  // Mostrar anuncio intersticial con error handling
+  async showInterstitialAd() {
+    if (this.fallbackMode) {
+      console.warn('⚠️ Modo fallback activo, no se pueden mostrar anuncios');
+      return false;
+    }
+
+    if (!this.interstitialAd) {
+      console.warn('⚠️ No hay anuncio intersticial cargado');
+      return false;
+    }
+
+    try {
+      console.log('🎬 Mostrando anuncio intersticial...');
+      
+      // Verificar que el anuncio esté listo
+      if (!this.interstitialAd.loaded) {
+        console.warn('⚠️ Anuncio no está listo para mostrar');
         return false;
       }
-    }
-    
-    // Aplicar probabilidad
-    const shouldShow = Math.random() < probability;
-    
-    // if (shouldShow) {
-    //   // console.log(`🎯 Mostrando anuncio para transición: ${transitionKey} (${probability * 100}% probabilidad)`);
-    // }
-    
-    return shouldShow;
-  }
-
-  // Cargar anuncio intersticial
-  async loadInterstitialAd() {
-    if (this.isAdLoading || !this.interstitialAd) {
-      // console.log('⏳ Ya hay un anuncio cargándose o no está inicializado');
-      return false;
-    }
-
-    try {
-      this.isAdLoading = true;
-      // console.log('📥 Cargando anuncio intersticial...');
-      
-      await this.interstitialAd.load();
-      return true;
-    } catch (error) {
-      this.isAdLoading = false;
-      // console.error('❌ Error cargando anuncio:', error);
-      return false;
-    }
-  }
-
-  // Mostrar anuncio intersticial
-  async showInterstitialAd() {
-    try {
-      if (!this.interstitialAd) {
-        // console.log('⚠️ No hay anuncio disponible, cargando uno nuevo...');
-        const loaded = await this.loadInterstitialAd();
-        if (!loaded) return false;
-      }
-      
-      // console.log('🎬 Mostrando anuncio intersticial...');
       
       await this.interstitialAd.show();
-      
-      // Actualizar contadores
-      this.adCounter++;
-      this.lastAdShown = Date.now();
-      
-      // console.log(`📊 Anuncio mostrado. Total en esta sesión: ${this.adCounter}`);
-      
+      this.lastLoadTime = Date.now();
       return true;
+      
     } catch (error) {
-      // console.error('❌ Error mostrando anuncio:', error);
+      console.error('❌ Error mostrando anuncio intersticial:', error);
+      this.handleAdError(error);
       return false;
     }
   }
 
-  // Manejar transición entre pantallas
-  async handleScreenTransition(fromScreen, toScreen) {
-    if (this.shouldShowAd(fromScreen, toScreen)) {
-      // console.log(`🔄 Transición de ${fromScreen} a ${toScreen} - Mostrando anuncio`);
-      
-      // Cargar anuncio si no está disponible
-      if (!this.interstitialAd) {
-        await this.loadInterstitialAd();
-      }
-      
-      // Mostrar anuncio
-      return await this.showInterstitialAd();
+  // Verificar si se debe mostrar anuncio
+  shouldShowAd() {
+    if (this.fallbackMode) {
+      return false;
     }
     
-    return false;
+    const minTimeBetweenAds = 3 * 60 * 1000; // 3 minutos
+    const timeSinceLastAd = Date.now() - this.lastLoadTime;
+    
+    return timeSinceLastAd >= minTimeBetweenAds;
   }
 
-  // Obtener estadísticas de anuncios
-  getAdStats() {
+  // Obtener estado del servicio
+  getStatus() {
     return {
-      totalAdsShown: this.adCounter,
-      lastAdTime: this.lastAdShown,
-      maxAdsPerSession: this.adConfig.maxAdsPerSession,
-      remainingAds: this.adConfig.maxAdsPerSession - this.adCounter,
+      isInitialized: !this.fallbackMode,
+      isInFallbackMode: this.fallbackMode,
+      isLoading: this.isLoading,
+      hasInterstitialAd: !!this.interstitialAd,
+      loadAttempts: this.loadAttempts,
+      lastLoadTime: this.lastLoadTime,
+      shouldShowAd: this.shouldShowAd(),
     };
   }
 
-  // Resetear contadores (útil para nueva sesión)
+  // Resetear contadores
   resetCounters() {
-    this.adCounter = 0;
-    this.lastAdShown = null;
-    // console.log('🔄 Contadores de anuncios reseteados');
+    this.loadAttempts = 0;
+    this.lastLoadTime = 0;
+    console.log('🔄 Contadores de anuncios reseteados');
+  }
+
+  // Limpiar recursos
+  cleanup() {
+    if (this.interstitialAd) {
+      this.interstitialAd = null;
+    }
+    this.isLoading = false;
+    console.log('🧹 Recursos de anuncios limpiados');
   }
 }
 
-// Exportar instancia singleton
 export default new AdService();
