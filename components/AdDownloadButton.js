@@ -10,122 +10,96 @@ const AdDownloadButton = ({
   isDownloading, 
   style, 
   textStyle,
-  adsEnabled = true // Nuevo parámetro para habilitar/deshabilitar anuncios
+  adsEnabled = true
 }) => {
   const { isRewardedAdLoaded, isLibraryLoaded, showRewardedAd } = useAds();
   const [isShowingAd, setIsShowingAd] = useState(false);
+  const [adFailed, setAdFailed] = useState(false);
   const { translations } = useLocalization();
 
-  // Debug: verificar el valor recibido
-  const handleAdDownload = async () => {
+  // Lógica simple: intentar ads primero, si fallan -> descarga directa
+  const handleDownload = async () => {
     try {
-      // Si los anuncios están deshabilitados, proceder directamente con la descarga
+      // Si los ads están deshabilitados, ir directo a descarga
       if (!adsEnabled) {
         await onDownload(wallpaper);
         return;
       }
 
+      // Si la librería no está lista, ir directo a descarga
       if (!isLibraryLoaded) {
-        Alert.alert(
-          translations.adSystemNotAvailable || 'Sistema de anuncios no disponible',
-          translations.adSystemInitializing || 'El sistema de anuncios aún se está inicializando. Por favor, espera un momento.',
-          [{ text: translations.ok || 'OK' }]
-        );
+        console.log('⚠️ Librería de ads no disponible, descarga directa');
+        await onDownload(wallpaper);
         return;
       }
 
+      // Si no hay ads cargados, ir directo a descarga
       if (!isRewardedAdLoaded) {
-        Alert.alert(
-          translations.adNotAvailable || 'Anuncio no disponible',
-          translations.adStillLoading || 'El anuncio aún se está cargando. Por favor, espera un momento e inténtalo de nuevo.',
-          [{ text: translations.ok || 'OK' }]
-        );
+        console.log('⚠️ Ads no disponibles, descarga directa');
+        await onDownload(wallpaper);
         return;
       }
 
+      // Intentar mostrar el ad
       setIsShowingAd(true);
-
-      // Mostrar anuncio recompensado
-      // console.log('🎬 Llamando a showRewardedAd con:', {
-      //   wallpaper: wallpaper?.id,
-      //   onDownload: typeof onDownload
-      // });
+      setAdFailed(false);
       
-      const success = showRewardedAd(wallpaper, onDownload);
+      const adSuccess = await showRewardedAd(wallpaper, onDownload);
       
-      if (success) {
-        // Usuario completó el anuncio, ahora proceder con la descarga
-        // console.log('🎁 Usuario completó el anuncio, procediendo con descarga...');
-        
-        // El anuncio se está mostrando, esperar a que se complete
-        // Los permisos se solicitarán automáticamente en downloadService cuando se llame a onDownload
-        // No necesitamos hacer nada aquí, solo esperar a que el anuncio termine
+      if (adSuccess) {
+        console.log('✅ Ad mostrado exitosamente');
+        // El ad se mostró, la descarga se maneja automáticamente
       } else {
-        Alert.alert(
-          translations.adNotAvailable || 'Anuncio no disponible',
-          translations.adShowError || 'No se pudo mostrar el anuncio. Inténtalo de nuevo más tarde.',
-          [{ text: translations.ok || 'OK' }]
-        );
+        console.log('❌ Ad falló, activando fallback');
+        setAdFailed(true);
+        // Fallback: descarga directa
+        await onDownload(wallpaper);
       }
+
     } catch (error) {
-      console.error('❌ Error con anuncio recompensado:', error);
-      Alert.alert(
-        translations.error || 'Error',
-        translations.adUnexpectedError || 'Ocurrió un error al mostrar el anuncio. Inténtalo de nuevo.',
-        [{ text: translations.ok || 'OK' }]
-      );
+      console.error('❌ Error en ads, activando fallback:', error);
+      setAdFailed(true);
+      // Fallback: descarga directa
+      await onDownload(wallpaper);
     } finally {
       setIsShowingAd(false);
     }
   };
 
-  // Determinar el estado del botón
+  // Estado del botón basado en la situación
   const getButtonState = () => {
     if (isDownloading || isShowingAd) {
       return {
         icon: 'hourglass',
-        text: isShowingAd ? translations.viewingAd : translations.downloading,
+        text: isShowingAd ? (translations.viewingAd || 'Viendo anuncio...') : (translations.downloading || 'Descargando...'),
         disabled: true,
         backgroundColor: '#666',
+        showFallback: false
       };
     }
 
-    if (!isLibraryLoaded) {
-      return {
-        icon: 'hourglass',
-        text: translations.initializing,
-        disabled: true,
-        backgroundColor: '#999',
-      };
-    }
-
-    if (!isRewardedAdLoaded) {
+    // Si los ads fallaron o no están disponibles, mostrar estado de fallback
+    if (adFailed || !adsEnabled || !isLibraryLoaded || !isRewardedAdLoaded) {
       return {
         icon: 'download',
-        text: translations.loading,
-        disabled: true,
-        backgroundColor: '#999',
+        text: translations.downloadDirect || 'Descargar',
+        disabled: false,
+        backgroundColor: '#28a745', // Verde para indicar descarga directa
+        showFallback: true
       };
     }
 
+    // Estado normal con ads disponibles
     return {
       icon: 'download',
-      text: translations.download,
+      text: translations.download || 'Descargar',
       disabled: false,
-      backgroundColor: '#ff6b35',
+      backgroundColor: '#ff6b35', // Naranja para ads
+      showFallback: false
     };
   };
 
   const buttonState = getButtonState();
-
-  // Si hay algún problema, mostrar información adicional
-  // if (!isLibraryLoaded) {
-  //   console.log('⚠️ AdDownloadButton - Librería no cargada');
-  // }
-  
-  // if (!isRewardedAdLoaded && isLibraryLoaded) {
-  //   console.log('⚠️ AdDownloadButton - Anuncio recompensado no cargado');
-  // }
 
   return (
     <TouchableOpacity
@@ -135,7 +109,7 @@ const AdDownloadButton = ({
         buttonState.disabled && styles.downloadButtonDisabled,
         style
       ]}
-      onPress={handleAdDownload}
+      onPress={handleDownload}
       activeOpacity={0.8}
       disabled={buttonState.disabled}
     >
@@ -149,9 +123,17 @@ const AdDownloadButton = ({
           style={styles.buttonIcon}
         />
       )}
+      
       <Text style={[styles.buttonText, textStyle]}>
         {buttonState.text}
       </Text>
+      
+      {/* Mostrar mensaje de fallback si es necesario */}
+      {buttonState.showFallback && (
+        <Text style={styles.fallbackMessage}>
+          {translations.fallbackMessage || 'Descarga directa'}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -175,13 +157,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  downloadButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontFamily: 'Poppins_600SemiBold',
-    marginLeft: 4,
-    padding: 5,
-  },
   downloadButtonDisabled: {
     opacity: 0.7,
   },
@@ -194,6 +169,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     marginLeft: 4,
     padding: 5,
+  },
+  fallbackMessage: {
+    position: 'absolute',
+    bottom: -20,
+    right: 0,
+    color: '#fff',
+    fontSize: 10,
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'center',
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
 });
 
