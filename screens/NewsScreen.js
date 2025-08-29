@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, Image, Animated, Easing } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 import { useBackgrounds } from '../contexts/BackgroundContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
@@ -7,7 +8,15 @@ import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } fr
 import { useNews } from '../hooks/useApiMultiLang';
 import { useLocalization } from '../hooks/useLocalization';
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Indicadores (ventana de 5 puntos)
+const VISIBLE_DOTS = 5;
+const DOT_GAP = 15;                 // margen horizontal entre puntos (4 a cada lado, total 8)
+const DOT_INACTIVE = 8;            // diámetro punto inactivo
+const DOT_ACTIVE = 12;             // diámetro punto activo
+const STEP = DOT_ACTIVE + DOT_GAP; // paso constante de la "pista" (track)
+const ANIM_MS = 220;               // duración animación desplazamiento
 
 export default function NewsScreen({ navigation }) {
   // Hook de localización
@@ -31,11 +40,54 @@ export default function NewsScreen({ navigation }) {
 
   // Usar datos del backend o datos por defecto
   const newsData = newsResponse || defaultNews;
+
+  // Estado para el índice actual del scroll horizontal
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
+  // ---------- Animación del indicador deslizante ----------
+  const windowStart = useRef(new Animated.Value(0)).current; // índice de inicio de ventana (0..total - VISIBLE_DOTS)
+
+  // Helper clamp
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
   
   const handleNewsPress = (news) => {
     // Navegar a la pantalla de detalle de la noticia
     navigation.navigate('NewsDetail', { news });
   };
+
+  // Índice al terminar el paginado
+  const handlePageChange = (event) => {
+    const contentOffset = event.nativeEvent.contentOffset.x;
+    const pageIndex = Math.round(contentOffset / (screenWidth - 40));
+    setCurrentPageIndex(pageIndex);
+  };
+
+  // --- ANIMACIÓN: mover la "ventana" cuando cambia currentPageIndex ---
+  useEffect(() => {
+    const total = newsData.length;
+    if (total <= 0) return;
+
+    // Si hay <= 5 páginas, la ventana siempre es 0
+    if (total <= VISIBLE_DOTS) {
+      Animated.timing(windowStart, {
+        toValue: 0,
+        duration: ANIM_MS,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+      return;
+    }
+
+    // A partir del índice 3 (0-based), centramos el activo (posición visual 3 = idx 2)
+    const targetStart = clamp(currentPageIndex - 2, 0, total - VISIBLE_DOTS);
+
+    Animated.timing(windowStart, {
+      toValue: targetStart,
+      duration: ANIM_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [currentPageIndex, newsData.length]);
 
   const renderNews = ({ item }) => {
     // Formatear fecha para mostrar usando el hook de localización
@@ -72,6 +124,48 @@ export default function NewsScreen({ navigation }) {
             <Text style={[styles.readMore, isRTL && styles.rtlText]}>{translations.tapToReadMore}</Text>
           </View>
         </TouchableOpacity>
+      </View>
+    );
+  };
+
+  // Indicadores de página (ANIMADOS)
+  const renderPageIndicators = () => {
+    const totalPages = newsData.length;
+    if (totalPages === 0) return null;
+
+    // Ancho del viewport para 5 puntos (5 slots - último no suma gap)
+    const viewportWidth = VISIBLE_DOTS * STEP - DOT_GAP;
+
+    // Transform animada: -windowStart * STEP
+    const translateX = Animated.multiply(windowStart, -STEP);
+
+    // Renderiza TODOS los puntos; el viewport muestra solo 5
+    const dots = Array.from({ length: totalPages }, (_, i) => {
+      const isActive = i === currentPageIndex;
+      return (
+        <View
+          key={`dot-${i}`}
+          style={styles.dotSlot}
+          accessible
+          accessibilityLabel={`Página ${i + 1} de ${totalPages}${isActive ? ', actual' : ''}`}
+        >
+          <View
+            style={[
+              styles.dotBase,
+              isActive ? styles.dotActive : styles.dotInactive,
+              // El círculo cambia de tamaño, pero el slot mantiene layout estable
+              { width: isActive ? DOT_ACTIVE : DOT_INACTIVE, height: isActive ? DOT_ACTIVE : DOT_INACTIVE, borderRadius: (isActive ? DOT_ACTIVE : DOT_INACTIVE) / 2 },
+            ]}
+          />
+        </View>
+      );
+    });
+
+    return (
+      <View style={[styles.pageIndicatorsViewport, { width: viewportWidth }]}>
+        <Animated.View style={[styles.pageIndicatorsTrack, { transform: [{ translateX }] }]}>
+          {dots}
+        </Animated.View>
       </View>
     );
   };
@@ -135,7 +229,11 @@ export default function NewsScreen({ navigation }) {
               offset: (screenWidth - 40) * index,
               index,
             })}
+            onMomentumScrollEnd={handlePageChange}
           />
+
+          {/* Indicadores con animación de "desplazamiento" */}
+          {renderPageIndicators()}
         </View>
       </View>
     </View>
@@ -303,5 +401,34 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontFamily: 'Poppins_400Regular',
+  },
+
+  // ----- Indicadores (viewport + track + slots) -----
+  pageIndicatorsViewport: {
+    alignSelf: 'center',
+    overflow: 'hidden',
+    marginTop: 20,
+  },
+  pageIndicatorsTrack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  // Cada "slot" ocupa el tamaño del punto activo (para paso constante) + gap a la derecha
+  dotSlot: {
+    width: DOT_ACTIVE,
+    height: DOT_ACTIVE,
+    marginRight: DOT_GAP,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotBase: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  dotInactive: {
+    // tamaño dinámico se setea inline (width/height)
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  dotActive: {
+    backgroundColor: '#ff6b35',
   },
 }); 

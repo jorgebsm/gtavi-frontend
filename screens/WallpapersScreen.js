@@ -18,10 +18,10 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Indicadores (ventana de 5 puntos)
 const VISIBLE_DOTS = 5;
-const DOT_GAP = 8;                 // margen horizontal entre puntos (4 a cada lado, total 8)
+const DOT_GAP = 15;                 // margen horizontal entre puntos (4 a cada lado, total 8)
 const DOT_INACTIVE = 8;            // diámetro punto inactivo
 const DOT_ACTIVE = 12;             // diámetro punto activo
-const STEP = DOT_ACTIVE + DOT_GAP; // paso constante de la “pista” (track)
+const STEP = DOT_ACTIVE + DOT_GAP; // paso constante de la "pista" (track)
 const ANIM_MS = 220;               // duración animación desplazamiento
 
 // ---------- Componente imagen (sin cambios de lógica) ----------
