@@ -28,14 +28,14 @@ const AdDownloadButton = ({
 
       // Si la librería no está lista, ir directo a descarga
       if (!isLibraryLoaded) {
-        console.log('⚠️ Librería de ads no disponible, descarga directa');
+        // console.log('⚠️ Librería de ads no disponible, descarga directa');
         await onDownload(wallpaper);
         return;
       }
 
       // Si no hay ads cargados, ir directo a descarga
       if (!isRewardedAdLoaded) {
-        console.log('⚠️ Ads no disponibles, descarga directa');
+        // console.log('⚠️ Ads no disponibles, descarga directa');
         await onDownload(wallpaper);
         return;
       }
@@ -47,10 +47,10 @@ const AdDownloadButton = ({
       const adSuccess = await showRewardedAd(wallpaper, onDownload);
       
       if (adSuccess) {
-        console.log('✅ Ad mostrado exitosamente');
+        // console.log('✅ Ad mostrado exitosamente');
         // El ad se mostró, la descarga se maneja automáticamente
       } else {
-        console.log('❌ Ad falló, activando fallback');
+        // console.log('❌ Ad falló, activando fallback');
         setAdFailed(true);
         // Fallback: descarga directa
         await onDownload(wallpaper);

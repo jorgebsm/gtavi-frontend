@@ -191,17 +191,20 @@ const styles = StyleSheet.create({
   },
   pageIndicators: {
     position: 'absolute',
-    right: 2.5,
+    right: 0,
     top: '50%',
     transform: [{ translateY: -50 }],
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 40,
+    paddingHorizontal: 4,
   },
   indicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    marginVertical: 4,
+    marginVertical: 8,
   },
   activeIndicator: {
     backgroundColor: '#ff6b35',

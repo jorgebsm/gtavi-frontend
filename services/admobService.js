@@ -18,7 +18,7 @@ class AdMobService {
 
     // Evitar múltiples intentos simultáneos
     if (this.initializationAttempts >= this.maxInitializationAttempts) {
-      console.warn('⚠️ Máximo de intentos de inicialización alcanzado, usando modo fallback');
+      // console.warn('⚠️ Máximo de intentos de inicialización alcanzado, usando modo fallback');
       this.fallbackMode = true;
       return false;
     }
@@ -26,7 +26,7 @@ class AdMobService {
     this.initializationAttempts++;
 
     try {
-      console.log(`🚀 Intento ${this.initializationAttempts} de inicialización de Google AdMob...`);
+      // console.log(`🚀 Intento ${this.initializationAttempts} de inicialización de Google AdMob...`);
       
       // Timeout de seguridad para evitar bloqueos
       const initPromise = mobileAds().initialize();
@@ -38,17 +38,17 @@ class AdMobService {
       
       this.isInitialized = true;
       this.lastError = null;
-      console.log('✅ Google AdMob inicializado correctamente');
+      // console.log('✅ Google AdMob inicializado correctamente');
       
       return true;
       
     } catch (error) {
       this.lastError = error;
-      console.error(`❌ Error en intento ${this.initializationAttempts}:`, error);
+      // console.error(`❌ Error en intento ${this.initializationAttempts}:`, error);
       
       // Si es el último intento, activar modo fallback
       if (this.initializationAttempts >= this.maxInitializationAttempts) {
-        console.warn('🔄 Activando modo fallback - ads deshabilitados');
+        // console.warn('🔄 Activando modo fallback - ads deshabilitados');
         this.fallbackMode = true;
         return false;
       }
@@ -98,19 +98,19 @@ class AdMobService {
       }
       
       if (this.fallbackMode) {
-        console.warn('⚠️ Operación de ads en modo fallback');
+        // console.warn('⚠️ Operación de ads en modo fallback');
         return fallbackValue;
       }
       
       return await operation();
       
     } catch (error) {
-      console.error('❌ Error en operación de ads:', error);
+      // console.error('❌ Error en operación de ads:', error);
       this.lastError = error;
       
       // Activar modo fallback si es un error crítico
       if (error.message?.includes('JNI') || error.message?.includes('native')) {
-        console.warn('🚨 Error nativo detectado, activando modo fallback');
+        // console.warn('🚨 Error nativo detectado, activando modo fallback');
         this.fallbackMode = true;
       }
       

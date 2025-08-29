@@ -12,7 +12,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Indicadores (ventana de 5 puntos)
 const VISIBLE_DOTS = 2;
-const DOT_GAP = 15;                 // margen horizontal entre puntos
+const DOT_GAP = 14;                 // margen horizontal entre puntos
 const DOT_INACTIVE = 8;            // diámetro punto inactivo
 const DOT_ACTIVE = 12;             // diámetro punto activo
 const STEP = DOT_ACTIVE + DOT_GAP; // paso constante de la "pista" (track)
@@ -171,10 +171,12 @@ export default function TrailersScreen() {
     });
 
     return (
-      <View style={[styles.pageIndicatorsViewport, { width: viewportWidth }]}>
-        <Animated.View style={[styles.pageIndicatorsTrack, { transform: [{ translateX }] }]}>
-          {dots}
-        </Animated.View>
+      <View style={styles.viewIndicators}>
+        <View style={[styles.pageIndicatorsViewport, { width: viewportWidth}]}>
+          <Animated.View style={[styles.pageIndicatorsTrack, { transform: [{ translateX }] }]}>
+            {dots}
+          </Animated.View>
+        </View>
       </View>
     );
   };
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   headerTitle: {
     fontSize: 32,
@@ -421,10 +423,17 @@ const styles = StyleSheet.create({
   },
 
   // ----- Indicadores (viewport + track + slots) -----
+  viewIndicators: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignSelf: 'center',
+    paddingHorizontal: 32, // Espacio horizontal para los bordes
+    paddingVertical: 10,   // Espacio vertical arriba y abajo
+    borderRadius: 40,      // Bordes redondeados
+    marginTop: 10,         // Espacio desde arriba
+  },
   pageIndicatorsViewport: {
     alignSelf: 'center',
     overflow: 'hidden',
-    marginTop: 20,
   },
   pageIndicatorsTrack: {
     flexDirection: 'row',
